@@ -17,7 +17,7 @@ func main() {
 	//绑定模型
 	dao.SqlSession.AutoMigrate(&model.User{})
 	//注册路由
-	r := routes.SetRouter()
+	r := routes.InitRouter()
 	//启动端口为8081的项目
 	r.Run(":8081")
 }
