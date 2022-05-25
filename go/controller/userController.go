@@ -17,11 +17,11 @@ func CreateUser(c *gin.Context) {
 	// 判断是否异常，无异常则返回包含200和更新数据的信息
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"tip": "测试成功",
+			"tip": "测试失败",
 		})
 	} else {
 		c.JSON(http.StatusOK, gin.H{
-			"tip": "测试失败",
+			"tip": "测试成功",
 		})
 	}
 }

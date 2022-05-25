@@ -17,35 +17,35 @@ func InitRouter() *gin.Engine {
 			userGroup.POST("/test", controller.CreateUser)
 		}
 
-		// publish路由组
-		publishGroup := douyinGroup.Group("user")
-		{
-			publishGroup.POST("/test", controller.CreateUser)
-		}
-
-		// feed路由组
-		feedGroup := douyinGroup.Group("user")
-		{
-			feedGroup.POST("/test", controller.CreateUser)
-		}
-
-		// favorite路由组
-		favoriteGroup := douyinGroup.Group("user")
-		{
-			favoriteGroup.POST("/test", controller.CreateUser)
-		}
-
-		// comment路由组
-		commentGroup := douyinGroup.Group("user")
-		{
-			commentGroup.POST("/test", controller.CreateUser)
-		}
-
-		// relation路由组
-		relationGroup := douyinGroup.Group("user")
-		{
-			relationGroup.POST("/test", controller.CreateUser)
-		}
+		//// publish路由组
+		//publishGroup := douyinGroup.Group("user")
+		//{
+		//	publishGroup.POST("/test", controller.CreateUser)
+		//}
+		//
+		//// feed路由组
+		//feedGroup := douyinGroup.Group("user")
+		//{
+		//	feedGroup.POST("/test", controller.CreateUser)
+		//}
+		//
+		//// favorite路由组
+		//favoriteGroup := douyinGroup.Group("user")
+		//{
+		//	favoriteGroup.POST("/test", controller.CreateUser)
+		//}
+		//
+		//// comment路由组
+		//commentGroup := douyinGroup.Group("user")
+		//{
+		//	commentGroup.POST("/test", controller.CreateUser)
+		//}
+		//
+		//// relation路由组
+		//relationGroup := douyinGroup.Group("user")
+		//{
+		//	relationGroup.POST("/test", controller.CreateUser)
+		//}
 	}
 
 	return r
