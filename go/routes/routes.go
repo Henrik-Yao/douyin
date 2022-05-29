@@ -2,11 +2,25 @@ package routes
 
 import (
 	"douyin/go/controller"
+	"douyin/go/middleware"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 func InitRouter() *gin.Engine {
 	r := gin.Default()
+
+	// 以下代码为鉴权中间件测试
+	r.GET("getToken", func(c *gin.Context) {
+		token, err := middleware.CreateToken(11111, "return")
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"msg": "error"})
+		}
+		c.JSON(http.StatusOK, gin.H{"token": token})
+	})
+	r.POST("testToken", middleware.JwtMiddleware(), func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"msg": "鉴权成功"})
+	})
 
 	// 主路由组
 	douyinGroup := r.Group("douyin")
