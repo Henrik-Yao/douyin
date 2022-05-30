@@ -23,7 +23,7 @@ func InitRouter() *gin.Engine {
 	})
 
 	// 主路由组
-	douyinGroup := r.Group("douyin")
+	douyinGroup := r.Group("/douyin")
 	{
 		// user路由组
 		userGroup := douyinGroup.Group("user")
@@ -38,10 +38,12 @@ func InitRouter() *gin.Engine {
 		//}
 		//
 		//// feed路由组
-		//feedGroup := douyinGroup.Group("user")
+		//feedGroup := douyinGroup.Group("feed")
 		//{
-		//	feedGroup.POST("/test", controller.CreateUser)
+		//	feedGroup.GET("/feed/", controller.Feed)
 		//}
+		// feed只有一层，不需要组了
+		douyinGroup.GET("/feed/", controller.Feed)
 		//
 		//// favorite路由组
 		//favoriteGroup := douyinGroup.Group("user")
