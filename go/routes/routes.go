@@ -11,14 +11,14 @@ func InitRouter() *gin.Engine {
 	r := gin.Default()
 
 	// 以下代码为鉴权中间件测试
-	r.GET("getToken", func(c *gin.Context) {
+	r.GET("/getToken", func(c *gin.Context) {
 		token, err := middleware.CreateToken(11111, "return")
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"msg": "error"})
 		}
 		c.JSON(http.StatusOK, gin.H{"token": token})
 	})
-	r.POST("testToken", middleware.JwtMiddleware(), func(c *gin.Context) {
+	r.POST("/testToken", middleware.JwtMiddleware(), func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"msg": "鉴权成功"})
 	})
 
@@ -26,24 +26,26 @@ func InitRouter() *gin.Engine {
 	douyinGroup := r.Group("/douyin")
 	{
 		// user路由组
-		userGroup := douyinGroup.Group("user")
+		userGroup := douyinGroup.Group("/user")
 		{
-			userGroup.POST("/test", controller.CreateUser)
+			userGroup.POST("/test", middleware.JwtMiddleware(), controller.CreateUser)
 		}
 
-		//// publish路由组
-		//publishGroup := douyinGroup.Group("user")
-		//{
-		//	publishGroup.POST("/test", controller.CreateUser)
-		//}
-		//
-		//// feed路由组
-		//feedGroup := douyinGroup.Group("feed")
-		//{
-		//	feedGroup.GET("/feed/", controller.Feed)
-		//}
+		// publish路由组
+		publishGroup := douyinGroup.Group("/publish")
+		{
+			publishGroup.POST("/action", controller.Publish)
+			publishGroup.GET("/list", controller.PublishList)
+
+		}
 		// feed只有一层，不需要组了
 		douyinGroup.GET("/feed/", controller.Feed)
+
+		//// feed路由组
+		//feedGroup := douyinGroup.Group("user")
+		//{
+		//	feedGroup.POST("/test", controller.CreateUser)
+		//}
 		//
 		//// favorite路由组
 		//favoriteGroup := douyinGroup.Group("user")
