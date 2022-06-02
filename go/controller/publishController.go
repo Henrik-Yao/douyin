@@ -88,7 +88,7 @@ func Publish(c *gin.Context) {
 	//	fmt.Println("error:", err)
 	//}
 
-	video := model.Video{
+	video := model.VideoAll{
 		UserId:        userLogin.UserId,
 		Name:          userLogin.Name,
 		FollowCount:   userLogin.FollowCount,
