@@ -59,11 +59,13 @@ func InitRouter() *gin.Engine {
 		//	commentGroup.POST("/test", controller.CreateUser)
 		//}
 		//
-		//// relation路由组
-		//relationGroup := douyinGroup.Group("user")
-		//{
-		//	relationGroup.POST("/test", controller.CreateUser)
-		//}
+		// relation路由组
+		relationGroup := douyinGroup.Group("relation")
+		{
+			relationGroup.POST("/action", controller.RelationAction)
+			relationGroup.GET("/follow/list", controller.FollowList)
+			relationGroup.GET("/follower/list", controller.FollowerList)
+		}
 	}
 
 	return r
