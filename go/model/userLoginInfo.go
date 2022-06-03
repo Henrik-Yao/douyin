@@ -10,3 +10,11 @@ type UserLoginInfo struct {
 	FollowerCount int64  `json:"follower_count,omitempty"`
 	IsFollow      bool   `json:"is_follow,omitempty"`
 }
+
+// UserLogin 用户登录表，和UserInfo属于一对一关系
+type UserLogin struct {
+	Id         int64 `gorm:"primary_key"`
+	UserInfoId int64
+	Username   string `gorm:"primary_key"`
+	Password   string `gorm:"size:25;notnull"`
+}
