@@ -1,6 +1,6 @@
 package model
 
-type VideoAll struct {
+type Video struct {
 	ID            int64  `json:"id,omitempty"`
 	UserId        int64  `json:"user_id,omitempty"`
 	Name          string `json:"name,omitempty"`
