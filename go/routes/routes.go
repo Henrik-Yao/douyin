@@ -48,10 +48,11 @@ func InitRouter() *gin.Engine {
 		//}
 		//
 		//// favorite路由组
-		//favoriteGroup := douyinGroup.Group("user")
-		//{
-		//	favoriteGroup.POST("/test", controller.CreateUser)
-		//}
+		favoriteGroup := douyinGroup.Group("favorite")
+		{
+			favoriteGroup.POST("/action", controller.Favorite)
+			favoriteGroup.GET("/list",controller.FavoriteList)
+		}
 		//
 		//// comment路由组
 		//commentGroup := douyinGroup.Group("user")
