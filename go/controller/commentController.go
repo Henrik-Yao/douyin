@@ -25,7 +25,7 @@ type CommentActionResponse struct {
 
 type CommentResponse struct {
 	model.Comment
-	User model.UserInfo `json:"user,omitempty"`
+	User model.UserLoginInfo `json:"user,omitempty"`
 }
 
 func CommentAction(c *gin.Context) {
@@ -71,16 +71,16 @@ func PostComment(c *gin.Context, userId int, text string, videoId int64) {
 	var randomId int64
 	for {
 		rand.Seed(time.Now().UnixNano())
-		var test int32 = rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(1000)
-		randomIdStr := strconv.FormatInt(time.Now().Unix(), 10) + strconv.FormatInt(int64(test), 10)
-		randomId, _ = strconv.ParseInt(randomIdStr[4:], 10, 64)
-		var userExist model.UserInfo
-		dao.SqlSession.Table("user_info").Where("id=?", randomId).Find(&userExist)
-		if userExist == (model.UserInfo{}) {
+		partRand := rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(1000)
+		randomIdStr := strconv.FormatInt(time.Now().Unix(), 10) + strconv.FormatInt(int64(partRand), 10)
+		randomId, _ = strconv.ParseInt(randomIdStr, 10, 64)
+		var userExist model.UserLoginInfo
+		dao.SqlSession.Table("user_login_infos").Where("user_id=?", randomId).Find(&userExist)
+		if userExist == (model.UserLoginInfo{}) {
 			rand.Seed(time.Now().UnixNano())
-			var test int32 = rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(1000)
-			randomIdStr := strconv.FormatInt(time.Now().Unix(), 10) + strconv.FormatInt(int64(test), 10)
-			randomId, _ = strconv.ParseInt(randomIdStr[4:], 10, 64)
+			partRand := rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(1000)
+			randomIdStr := strconv.FormatInt(time.Now().Unix(), 10) + strconv.FormatInt(int64(partRand), 10)
+			randomId, _ = strconv.ParseInt(randomIdStr, 10, 64)
 		} else {
 			break
 		}
@@ -97,7 +97,7 @@ func PostComment(c *gin.Context, userId int, text string, videoId int64) {
 
 	dao.SqlSession.AutoMigrate(&model.Comment{})
 
-	dao.SqlSession.Transaction(func(db *gorm.DB) error {
+	err := dao.SqlSession.Transaction(func(db *gorm.DB) error {
 		// Add a comment record
 		if err := dao.SqlSession.Table("comment").Create(&newComment).Error; err != nil {
 			return err
@@ -106,11 +106,14 @@ func PostComment(c *gin.Context, userId int, text string, videoId int64) {
 		dao.SqlSession.Table("videos").Where("id = ?", videoId).Update("comment_count", gorm.Expr("comment_count + 1"))
 		return nil
 	})
+	if err != nil {
+		return
+	}
 
-	var getUser model.UserInfo
-	dao.SqlSession.Table("user_info").Where("id=?", userId).Find(&getUser)
-	currUser := model.UserInfo{
-		Id:            getUser.Id,
+	var getUser model.UserLoginInfo
+	dao.SqlSession.Table("user_login_infos").Where("user_id=?", userId).Find(&getUser)
+	currUser := model.UserLoginInfo{
+		UserId:        getUser.UserId,
 		Name:          getUser.Name,
 		FollowCount:   getUser.FollowCount,
 		FollowerCount: getUser.FollowerCount,
@@ -125,7 +128,7 @@ func PostComment(c *gin.Context, userId int, text string, videoId int64) {
 }
 
 func DeleteComment(c *gin.Context, videoId int64, commentId int64) {
-	dao.SqlSession.Transaction(func(db *gorm.DB) error {
+	err := dao.SqlSession.Transaction(func(db *gorm.DB) error {
 		// Modify a field that indicates whether it has been deleted
 		if err := dao.SqlSession.Table("comment").Where("id = ?", commentId).Update("is_deleted", true).Error; err != nil {
 			return err
@@ -134,6 +137,9 @@ func DeleteComment(c *gin.Context, videoId int64, commentId int64) {
 		dao.SqlSession.Table("videos").Where("id = ?", videoId).Update("comment_count", gorm.Expr("comment_count - 1"))
 		return nil
 	})
+	if err != nil {
+		return
+	}
 
 	c.JSON(http.StatusOK, Response{
 		StatusCode: 0,
@@ -157,21 +163,21 @@ func CommentList(c *gin.Context) {
 		return
 	}
 
-	video_id := c.Query("video_id")
-	var comment_list []model.Comment
-	dao.SqlSession.Table("comment").Where("video_id=? and is_deleted = false", video_id).Find(&comment_list)
+	videoId := c.Query("video_id")
+	var commentList []model.Comment
+	dao.SqlSession.Table("comment").Where("video_id=? and is_deleted = false", videoId).Find(&commentList)
 
-	var response_comment_list []CommentResponse
-	for i := 0; i < len(comment_list); i++ {
-		var getUser model.UserInfo
-		dao.SqlSession.Table("user_info").Where("id=?", comment_list[i].UserId).Find(&getUser)
-		response_comment_list[i] = CommentResponse{
-			comment_list[i],
+	var responseCommentList []CommentResponse
+	for i := 0; i < len(commentList); i++ {
+		var getUser model.UserLoginInfo
+		dao.SqlSession.Table("user_login_infos").Where("user_id=?", commentList[i].UserId).Find(&getUser)
+		responseCommentList[i] = CommentResponse{
+			commentList[i],
 			getUser,
 		}
 	}
 
-	if comment_list == nil {
+	if commentList == nil {
 		c.JSON(http.StatusOK, CommentListResponse{
 			Response: Response{
 				StatusCode: 1,
@@ -185,7 +191,7 @@ func CommentList(c *gin.Context) {
 				StatusCode: 0,
 				StatusMsg:  "success",
 			},
-			CommentList: response_comment_list,
+			CommentList: responseCommentList,
 		})
 	}
 }
