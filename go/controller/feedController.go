@@ -9,8 +9,8 @@ import (
 
 type FeedResponse struct {
 	model.Response
-	VideoList []model.Video `json:"video_list,omitempty"`
-	NextTime  int64         `json:"next_time,omitempty"`
+	VideoList []model.FeedVideo `json:"video_list,omitempty"`
+	NextTime  int64             `json:"next_time,omitempty"`
 }
 
 func Feed(c *gin.Context) {

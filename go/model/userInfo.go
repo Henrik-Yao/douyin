@@ -1,6 +1,6 @@
 package model
 
-type UserInfo struct { // 视频发布者信息
+type Author struct { // 视频发布者信息
 	Id            int64  `json:"id,omitempty"`
 	Name          string `json:"name,omitempty"`
 	FollowCount   int64  `json:"follow_count,omitempty"`
