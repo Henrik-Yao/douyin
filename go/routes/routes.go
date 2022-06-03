@@ -3,8 +3,9 @@ package routes
 import (
 	"douyin/go/controller"
 	"douyin/go/middleware"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func InitRouter() *gin.Engine {
@@ -51,14 +52,15 @@ func InitRouter() *gin.Engine {
 		favoriteGroup := douyinGroup.Group("favorite")
 		{
 			favoriteGroup.POST("/action", controller.Favorite)
-			favoriteGroup.GET("/list",controller.FavoriteList)
+			favoriteGroup.GET("/list", controller.FavoriteList)
 		}
 		//
 		//// comment路由组
-		//commentGroup := douyinGroup.Group("user")
-		//{
-		//	commentGroup.POST("/test", controller.CreateUser)
-		//}
+		commentGroup := douyinGroup.Group("/comment")
+		{
+			commentGroup.POST("/action", controller.CommentAction)
+			commentGroup.GET("/list", controller.CommentList)
+		}
 		//
 		// relation路由组
 		relationGroup := douyinGroup.Group("relation")
