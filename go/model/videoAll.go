@@ -1,7 +1,9 @@
 package model
 
+import "github.com/jinzhu/gorm"
+
 type Video struct {
-	ID            int64  `json:"id,omitempty"`
+	gorm.Model
 	UserId        int64  `json:"user_id,omitempty"`
 	Name          string `json:"name,omitempty"`
 	FollowCount   int64  `json:"follow_count,omitempty"`
