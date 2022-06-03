@@ -10,6 +10,7 @@ import (
 	"douyin/go/model"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	"net/http"
 	"path/filepath"
 	"time"
@@ -19,7 +20,6 @@ type Response struct {
 	StatusCode int32  `json:"status_code"`
 	StatusMsg  string `json:"status_msg,omitempty"`
 }
-
 type VideoListResponse struct {
 	Response
 	VideoList []model.Video `json:"video_list"`
@@ -41,13 +41,10 @@ func Publish(c *gin.Context) {
 		c.Abort() //阻止执行
 		return
 	}
-	fmt.Println("token通过验证")
+	//fmt.Println("token通过验证")
 
-	//获取id 和 name
+	//获取id
 	user_id := tokenStruck.UserId
-	//username := tokenStruck.UserName
-	//fmt.Printf("%#v", user_id)
-	//fmt.Printf("%#v", username)
 
 	//2.接收传来的数据
 	data, err := c.FormFile("data")
@@ -75,33 +72,32 @@ func Publish(c *gin.Context) {
 		StatusMsg:  finalName + "--上传成功",
 	})
 
-	//3.建数据库表Videos
-	dao.SqlSession.AutoMigrate(&model.UserLoginInfo{}) //如果已经被创建，则将其注释掉
-	dao.SqlSession.AutoMigrate(&model.Video{})         //模型关联到数据库表videos
+	//3.建数据库表
+	//dao.SqlSession.AutoMigrate(&model.UserInfo{})
+	dao.SqlSession.AutoMigrate(&model.VideoNoAuthor{}) //模型关联到数据库表
+
+	////保存视频-用户关系信息(可以不用，多此一举)
+	//video_id = video_id + 1
+	//videoUser := model.VideoUser{
+	//	Model:   gorm.Model{},
+	//	UserId:  int64(user_id),
+	//	VideoId: video_id,
+	//}
+	//dao.SqlSession.Table("video_users").Create(&videoUser)
 
 	title := c.PostForm("title") //获取传入的标题
-	var userLogin model.UserLoginInfo
-	dao.SqlSession.Table("user_login_infos").Where("user_id=?", user_id).First(&userLogin)
-	//将对象Object序列化成json存储,试过了，后面获取video_list不可行
-	//user, err := json.Marshal(userLogin)
-	//if err != nil {
-	//	fmt.Println("error:", err)
-	//}
-
-	video := model.Video{
-		UserId:        userLogin.UserId,
-		Name:          userLogin.Name,
-		FollowCount:   userLogin.FollowCount,
-		FollowerCount: userLogin.FollowerCount,
-		IsFollow:      userLogin.IsFollow,
-		PlayUrl:       "../video/" + finalName,
+	//保存视频相关信息
+	videoNoAuthor := model.VideoNoAuthor{
+		Model:         gorm.Model{},
+		UserId:        int64(user_id),
+		PlayUrl:       "../videos/" + finalName,
 		CoverUrl:      "......",
-		FavoriteCount: 0, //需要从其他接口获取
+		FavoriteCount: 0,
 		CommentCount:  0,
 		IsFavorite:    false,
 		Title:         title,
 	}
-	dao.SqlSession.Table("videos").Create(&video) //创建记录
+	dao.SqlSession.Table("video_no_authors").Create(&videoNoAuthor)
 
 }
 
@@ -121,13 +117,24 @@ func PublishList(c *gin.Context) {
 		c.Abort() //阻止执行
 		return
 	}
-	fmt.Println("token通过验证")
 
 	//2.查询当前id用户的所有视频，返回页面
 	user_id := c.Query("user_id")
-	var video_list []model.Video
-	dao.SqlSession.Table("videos").Where("user_id=?", user_id).Find(&video_list)
-	if video_list == nil {
+	//根据id查找用户
+	var userInfo model.UserInfo
+	dao.SqlSession.Table("user_infos").Where("user_id=?", user_id).First(&userInfo)
+	loginUser := model.LoginUser{
+		UserId:        userInfo.UserId,
+		Name:          userInfo.Name,
+		FollowCount:   userInfo.FollowCount,
+		FollowerCount: userInfo.FollowerCount,
+		IsFollow:      userInfo.IsFollow,
+	}
+	//根据用户id查找 所有相关视频信息
+	var videoInfoList []model.VideoNoAuthor
+	dao.SqlSession.Table("video_no_authors").Where("user_id=?", user_id).Find(&videoInfoList)
+
+	if len(videoInfoList) == 0 {
 		c.JSON(http.StatusOK, VideoListResponse{
 			Response: Response{
 				StatusCode: 1,
@@ -136,12 +143,27 @@ func PublishList(c *gin.Context) {
 			VideoList: nil,
 		})
 	} else {
+		//需要展示的列表信息
+		var videoList []model.Video
+		for i := 0; i < len(videoInfoList); i++ {
+			video := model.Video{
+				VideoId:       int64(videoInfoList[i].ID),
+				Author:        loginUser,
+				PlayUrl:       videoInfoList[i].PlayUrl,
+				CoverUrl:      videoInfoList[i].CoverUrl,
+				FavoriteCount: videoInfoList[i].FavoriteCount,
+				CommentCount:  videoInfoList[i].CommentCount,
+				IsFavorite:    videoInfoList[i].IsFavorite,
+				Title:         videoInfoList[i].Title,
+			}
+			videoList = append(videoList, video)
+		}
 		c.JSON(http.StatusOK, VideoListResponse{
 			Response: Response{
 				StatusCode: 0,
 				StatusMsg:  "success",
 			},
-			VideoList: video_list,
+			VideoList: videoList,
 		})
 	}
 }
