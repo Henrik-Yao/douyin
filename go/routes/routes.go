@@ -4,9 +4,8 @@ import (
 	"douyin/go/controller"
 	"douyin/go/middleware"
 	"fmt"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 func InitRouter() *gin.Engine {
