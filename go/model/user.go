@@ -4,6 +4,8 @@ import "github.com/jinzhu/gorm"
 
 type User struct {
 	gorm.Model
-	UserName string `json:"username"`
-	Password string `json:"password"`
+	Name          string `json:"name"`
+	Password      string `json:"password"`
+	FollowCount   int32  `json:"follow_count"`
+	FollowerCount int32  `json:"follower_count"`
 }

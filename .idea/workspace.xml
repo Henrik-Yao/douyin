@@ -5,12 +5,39 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c3932615-c514-4842-8a49-1fb3ce6acb05" name="默认变更列表" comment="">
+      <change afterPath="$PROJECT_DIR$/go/model/follow.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/go/model/video.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/go/service/commentService.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/go/service/followingService.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go/dao/error.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/go/dao/userInfo.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/go/dao/userLogin.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/go/model/comment.go" beforeDir="false" afterPath="$PROJECT_DIR$/go/model/comment.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go/model/favorite.go" beforeDir="false" afterPath="$PROJECT_DIR$/go/model/favorite.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go/model/feedVideo.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/go/model/relation.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/go/model/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/go/model/user.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go/model/userInfo.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/go/model/userLoginInfo.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/go/model/userlogin.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/go/model/videoAll.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/go/service/error.go" beforeDir="false" afterPath="$PROJECT_DIR$/go/common/error.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go/service/relationService.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/go/service/userLogin.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/go/service/userRegister.go" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go File" />
+      </list>
+    </option>
   </component>
   <component name="GOROOT" url="file:///usr/local/go" />
   <component name="Git.Settings">
@@ -24,25 +51,33 @@
     <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectId" id="29uUjmMFyDYCynOEsnF77BVB7A0" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.go.format.on.save.advertiser.fired&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.watchers.conflict.with.on.save.actions.check.performed&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;configurable..is.expanded&quot;: &quot;false&quot;,
-    &quot;configurable.GoLibrariesConfigurable.is.expanded&quot;: &quot;true&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/bytedance&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultGoTemplateProperty": "Go File",
+    "RunOnceActivity.go.format.on.save.advertiser.fired": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "RunOnceActivity.go.watchers.conflict.with.on.save.actions.check.performed": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "configurable..is.expanded": "false",
+    "configurable.GoLibrariesConfigurable.is.expanded": "true",
+    "go.import.settings.migrated": "true",
+    "last_opened_file_path": "/Users/bytedance"
   }
-}</component>
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/go/common" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="go build douyin/go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="douyin" />
