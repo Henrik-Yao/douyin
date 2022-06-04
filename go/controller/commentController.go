@@ -28,23 +28,19 @@ type CommentResponse struct {
 }
 
 func CommentAction(c *gin.Context) {
-	token := c.Query("token")
-	actionType := c.Query("action_type")
 
+	// authentication
+	middleware.JwtMiddleware()
+
+	getUserId, _ := c.Get("user_id")
+	var userId int
+	if v, ok := getUserId.(int); ok {
+		userId = v
+	}
+
+	actionType := c.Query("action_type")
 	videoIdStr := c.Query("video_id")
 	videoId, _ := strconv.ParseInt(videoIdStr, 10, 64)
-
-	tokenStruct, ok := middleware.CheckToken(token)
-	if !ok {
-		c.JSON(http.StatusOK, gin.H{"code": 403, "msg": "User doesn't exist"})
-		c.Abort()
-		return
-	}
-	if time.Now().Unix() > tokenStruct.ExpiresAt {
-		c.JSON(http.StatusOK, gin.H{"code": 402, "msg": "Token has expired"})
-		c.Abort()
-		return
-	}
 
 	// Unsupported type
 	if actionType != "1" && actionType != "2" {
@@ -55,7 +51,7 @@ func CommentAction(c *gin.Context) {
 
 	if actionType == "1" { // post
 		text := c.Query("comment_text")
-		PostComment(c, tokenStruct.UserId, text, videoId)
+		PostComment(c, userId, text, videoId)
 	} else if actionType == "2" { //delete
 		commentIdStr := c.Query("comment_id")
 		commentId, _ := strconv.ParseInt(commentIdStr, 10, 64)
@@ -127,20 +123,9 @@ func DeleteComment(c *gin.Context, videoId int64, commentId int64) {
 }
 
 func CommentList(c *gin.Context) {
-	token := c.Query("token")
 
-	tokenStruct, ok := middleware.CheckToken(token)
-	if !ok {
-		c.JSON(http.StatusOK, gin.H{"code": 403, "msg": "User doesn't exist"})
-		c.Abort()
-		return
-	}
-
-	if time.Now().Unix() > tokenStruct.ExpiresAt {
-		c.JSON(http.StatusOK, gin.H{"code": 402, "msg": "Token has expired"})
-		c.Abort()
-		return
-	}
+	// authentication
+	middleware.JwtMiddleware()
 
 	videoId := c.Query("video_id")
 	var commentList []model.Comment
