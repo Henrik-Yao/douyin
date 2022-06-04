@@ -4,7 +4,6 @@ import (
 	"douyin/go/dao"
 	"douyin/go/middleware"
 	"douyin/go/model"
-	"math/rand"
 	"net/http"
 	"strconv"
 	"time"
@@ -67,27 +66,7 @@ func CommentAction(c *gin.Context) {
 
 func PostComment(c *gin.Context, userId int, text string, videoId int64) {
 
-	// Generate random numbers as id (self-increment id is difficult to obtain)
-	var randomId int64
-	for {
-		rand.Seed(time.Now().UnixNano())
-		partRand := rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(1000)
-		randomIdStr := strconv.FormatInt(time.Now().Unix(), 10) + strconv.FormatInt(int64(partRand), 10)
-		randomId, _ = strconv.ParseInt(randomIdStr, 10, 64)
-		var userExist model.UserLoginInfo
-		dao.SqlSession.Table("user_login_infos").Where("user_id=?", randomId).Find(&userExist)
-		if userExist == (model.UserLoginInfo{}) {
-			rand.Seed(time.Now().UnixNano())
-			partRand := rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(1000)
-			randomIdStr := strconv.FormatInt(time.Now().Unix(), 10) + strconv.FormatInt(int64(partRand), 10)
-			randomId, _ = strconv.ParseInt(randomIdStr, 10, 64)
-		} else {
-			break
-		}
-	}
-
 	newComment := model.Comment{
-		Id:         randomId,
 		UserId:     int64(userId),
 		Content:    text,
 		CreateDate: time.Now().String(),
@@ -103,7 +82,7 @@ func PostComment(c *gin.Context, userId int, text string, videoId int64) {
 			return err
 		}
 		// Change the number of video comments
-		dao.SqlSession.Table("videos").Where("id = ?", videoId).Update("comment_count", gorm.Expr("comment_count + 1"))
+		dao.SqlSession.Table("video_no_authors").Where("id = ?", videoId).Update("comment_count", gorm.Expr("comment_count + 1"))
 		return nil
 	})
 	if err != nil {
@@ -134,7 +113,7 @@ func DeleteComment(c *gin.Context, videoId int64, commentId int64) {
 			return err
 		}
 		// Change the number of video comments
-		dao.SqlSession.Table("videos").Where("id = ?", videoId).Update("comment_count", gorm.Expr("comment_count - 1"))
+		dao.SqlSession.Table("video_no_authors").Where("id = ?", videoId).Update("comment_count", gorm.Expr("comment_count - 1"))
 		return nil
 	})
 	if err != nil {
