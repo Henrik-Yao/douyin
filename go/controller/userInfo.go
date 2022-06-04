@@ -10,7 +10,7 @@ import (
 
 type UserResponse struct {
 	model.Response
-	User *model.UserInfo1 `json:"user"`
+	User *model.UserInfo `json:"user"`
 }
 
 func UserInfoHandler(c *gin.Context) {
@@ -47,7 +47,7 @@ func (p *ProxyUserInfo) DoQueryUserInfoByUserId(rawId string) error {
 	//由于得到userinfo不需要组装model层的数据，所以直接调用model层的接口
 	userinfoDAO := dao.NewUserInfoDAO()
 
-	var userInfo model.UserInfo1
+	var userInfo model.UserInfo
 	err = userinfoDAO.QueryUserInfoById(userId, &userInfo)
 	if err != nil {
 		return err
@@ -79,7 +79,7 @@ func (p *ProxyUserInfo) UserInfoError(msg string) {
 	})
 }
 
-func (p *ProxyUserInfo) UserInfoOk(user *model.UserInfo1) {
+func (p *ProxyUserInfo) UserInfoOk(user *model.UserInfo) {
 	p.c.JSON(http.StatusOK, UserResponse{
 		Response: model.Response{StatusCode: 0},
 		User:     user,

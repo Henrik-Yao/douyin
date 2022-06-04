@@ -23,7 +23,7 @@ func NewUserInfoDAO() *UserInfoDAO {
 }
 
 // QueryUserInfoById 根据用户ID查询用户信息
-func (u *UserInfoDAO) QueryUserInfoById(userId int64, userinfo *model.UserInfo1) error {
+func (u *UserInfoDAO) QueryUserInfoById(userId int64, userinfo *model.UserInfo) error {
 	if userinfo == nil {
 		return ErrorNullPointer
 	}
@@ -36,7 +36,7 @@ func (u *UserInfoDAO) QueryUserInfoById(userId int64, userinfo *model.UserInfo1)
 }
 
 // AddUserInfo 添加用户信息
-func (u *UserInfoDAO) AddUserInfo(userinfo *model.UserInfo1) error {
+func (u *UserInfoDAO) AddUserInfo(userinfo *model.UserInfo) error {
 	if userinfo == nil {
 		return ErrorNullPointer
 	}
@@ -45,7 +45,7 @@ func (u *UserInfoDAO) AddUserInfo(userinfo *model.UserInfo1) error {
 
 // IsUserExistById 根据用户ID判断用户是否存在
 func (u *UserInfoDAO) IsUserExistById(id int64) bool {
-	var userinfo model.UserInfo1
+	var userinfo model.UserInfo
 	if err := SqlSession.Where("id=?", id).Select("id").First(&userinfo).Error; err != nil {
 		log.Println(err)
 	}
@@ -72,7 +72,7 @@ func (u *UserInfoDAO) CancelUserFollow(userId, userToId int64) error {
 }
 
 // GetFollowListByUserId 根据userId获得关注列表
-func (u *UserInfoDAO) GetFollowListByUserId(userId int64, userList *[]*model.UserInfo1) error {
+func (u *UserInfoDAO) GetFollowListByUserId(userId int64, userList *[]*model.UserInfo) error {
 	if userList == nil {
 		return ErrorNullPointer
 	}
@@ -87,7 +87,7 @@ func (u *UserInfoDAO) GetFollowListByUserId(userId int64, userList *[]*model.Use
 }
 
 // GetFollowerListByUserId 根据userId得到粉丝列表
-func (u *UserInfoDAO) GetFollowerListByUserId(userId int64, userList *[]*model.UserInfo1) error {
+func (u *UserInfoDAO) GetFollowerListByUserId(userId int64, userList *[]*model.UserInfo) error {
 	if userList == nil {
 		return ErrorNullPointer
 	}

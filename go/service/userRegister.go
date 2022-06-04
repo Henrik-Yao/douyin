@@ -70,7 +70,7 @@ func (q *PostUserLoginFlow) updateData() error {
 
 	//准备好userInfo,默认name为username,将加密密码写进数据库
 	userLogin := model.UserLogin1{Username: q.username, Password: q.password}
-	userinfo := model.UserInfo1{User: &userLogin, Name: q.username}
+	userinfo := model.UserInfo{User: &userLogin, Name: q.username}
 
 	//判断用户名是否已经存在
 	userLoginDAO := dao.NewUserLoginDao()
