@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"douyin/go/middleware"
 	"douyin/go/model"
 	"douyin/go/service"
 	"github.com/gin-gonic/gin"
@@ -18,17 +19,16 @@ type FollowerListResponse struct {
 	UserList []model.Follower `json:"user_list"`
 }
 
-// RelationAction
+// RelationAction 关注/取消关注操作
 func RelationAction(c *gin.Context) {
 
 	//1.取数据
-	//token := c.Query("token")
 	user_id, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
 	to_user_id, _ := strconv.ParseInt(c.Query("to_user_id"), 10, 64)
 	action_type_, _ := strconv.ParseInt(c.Query("action_type"), 10, 64)
 	action_type := int32(action_type_)
 	//2.token鉴权
-
+	middleware.JwtMiddleware()
 	//3.service层处理
 	err := service.RelationAction(user_id, to_user_id, action_type)
 	if err != nil {
@@ -45,13 +45,13 @@ func RelationAction(c *gin.Context) {
 
 }
 
-// FollowList
+// FollowList 获取用户关注列表
 func FollowList(c *gin.Context) {
 
 	//1.数据预处理
 	user_id, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
 	//2.token鉴权
-
+	middleware.JwtMiddleware()
 	//3.service层处理
 	followlist, err := service.FollowList(user_id)
 	if err != nil {
@@ -73,12 +73,12 @@ func FollowList(c *gin.Context) {
 	}
 }
 
-// FollowerList
+// FollowerList 获取用户粉丝列表
 func FollowerList(c *gin.Context) {
 	//1.数据预处理
 	user_id, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
 	//2.token鉴权
-
+	middleware.JwtMiddleware()
 	//3.service层处理
 	followlist, err := service.FollowerList(user_id)
 	if err != nil {
