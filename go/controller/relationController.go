@@ -10,38 +10,29 @@ import (
 	"strconv"
 )
 
-type UserListResponse struct {
+type FollowListResponse struct {
 	model.Response
-	UserList []follower `json:"user_list"`
+	UserList []model.Follower `json:"user_list"`
 }
 
-type follower struct {
-	Id            int64  `json:"id,omitempty"`
-	Name          string `json:"name,omitempty"`
-	FollowCount   int64  `json:"follow_count,omitempty"`
-	FollowerCount int64  `json:"follower_count,omitempty"`
-	IsFollow      bool   `json:"is_follow,omitempty"`
+type FollowerListResponse struct {
+	model.Response
+	UserList []model.Follower `json:"user_list"`
 }
 
 // RelationAction no practical effect, just check if token is valid
 func RelationAction(c *gin.Context) {
 
-	//1.预处理
-	token := c.Query("token")
+	//1.取数据
+	//token := c.Query("token")
 	user_id, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
 	to_user_id, _ := strconv.ParseInt(c.Query("to_user_id"), 10, 64)
-	action_type, _ := strconv.ParseInt(c.Query("action_type"), 10, 64)
-	relationreq := model.RelationRequest{
-		UserId:     user_id,
-		Token:      token,
-		ToUserId:   to_user_id,
-		ActionType: int32(action_type),
-	}
+	action_type_, _ := strconv.ParseInt(c.Query("action_type"), 10, 64)
+	action_type := int32(action_type_)
 	//2.token鉴权
-	//token := realtionreq.Token
 
 	//3.service层处理
-	err := service.RelationAction(&relationreq)
+	err := service.RelationAction(user_id, to_user_id, action_type)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, Response{
 			StatusCode: 1,
@@ -59,31 +50,27 @@ func RelationAction(c *gin.Context) {
 // FollowList
 func FollowList(c *gin.Context) {
 
-	//1.验证token
-
+	//1.数据预处理
 	user_id, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
-	//2.先查relation表
-	var getrelation []follower
-	dao.SqlSession.Table("user_login_infos").Joins("left join relations on user_login_infos.user_id = relations.to_user_id").
-		Where("relations.user_id=?", user_id).Scan(&getrelation)
-	//is_fllow逻辑
+	//2.token鉴权
 
-	fmt.Println(getrelation)
-	if getrelation == nil {
-		c.JSON(http.StatusOK, UserListResponse{
+	//3.service层处理
+	followlist, err := service.FollowList(user_id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, FollowListResponse{
 			Response: model.Response{
 				StatusCode: 1,
-				StatusMsg:  "No query found.",
+				StatusMsg:  "查找列表失败！",
 			},
 			UserList: nil,
 		})
 	} else {
-		c.JSON(http.StatusOK, UserListResponse{
+		c.JSON(http.StatusOK, FollowListResponse{
 			Response: model.Response{
 				StatusCode: 0,
-				StatusMsg:  "success",
+				StatusMsg:  "已找到列表！",
 			},
-			UserList: getrelation,
+			UserList: followlist,
 		})
 	}
 }
@@ -94,14 +81,14 @@ func FollowerList(c *gin.Context) {
 
 	user_id, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
 	//2.先查relation表
-	var getrelation []follower
-	dao.SqlSession.Table("user_login_infos").Joins("left join relations on user_login_infos.user_id = relations.user_id").
+	var getrelation []model.Follower
+	dao.SqlSession.Table("user_infos").Joins("left join relations on user_infos.user_id = relations.user_id").
 		Where("relations.to_user_id=?", user_id).Scan(&getrelation)
 	//is_fllow逻辑需要增加
 
 	fmt.Println(getrelation)
 	if getrelation == nil {
-		c.JSON(http.StatusOK, UserListResponse{
+		c.JSON(http.StatusOK, FollowListResponse{
 			Response: model.Response{
 				StatusCode: 1,
 				StatusMsg:  "No query found.",
@@ -109,7 +96,7 @@ func FollowerList(c *gin.Context) {
 			UserList: nil,
 		})
 	} else {
-		c.JSON(http.StatusOK, UserListResponse{
+		c.JSON(http.StatusOK, FollowListResponse{
 			Response: model.Response{
 				StatusCode: 0,
 				StatusMsg:  "success",
