@@ -1,10 +1,8 @@
 package controller
 
 import (
-	"douyin/go/dao"
 	"douyin/go/model"
 	"douyin/go/service"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -77,21 +75,17 @@ func FollowList(c *gin.Context) {
 
 // FollowerList
 func FollowerList(c *gin.Context) {
-	//1.验证token
-
+	//1.数据预处理
 	user_id, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
-	//2.先查relation表
-	var getrelation []model.Follower
-	dao.SqlSession.Table("user_infos").Joins("left join relations on user_infos.user_id = relations.user_id").
-		Where("relations.to_user_id=?", user_id).Scan(&getrelation)
-	//is_fllow逻辑需要增加
+	//2.token鉴权
 
-	fmt.Println(getrelation)
-	if getrelation == nil {
-		c.JSON(http.StatusOK, FollowListResponse{
+	//3.service层处理
+	followlist, err := service.FollowerList(user_id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, FollowListResponse{
 			Response: model.Response{
 				StatusCode: 1,
-				StatusMsg:  "No query found.",
+				StatusMsg:  "查找列表失败！",
 			},
 			UserList: nil,
 		})
@@ -99,9 +93,9 @@ func FollowerList(c *gin.Context) {
 		c.JSON(http.StatusOK, FollowListResponse{
 			Response: model.Response{
 				StatusCode: 0,
-				StatusMsg:  "success",
+				StatusMsg:  "已找到列表！",
 			},
-			UserList: getrelation,
+			UserList: followlist,
 		})
 	}
 }
