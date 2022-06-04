@@ -54,7 +54,8 @@ func CheckToken(token string) (*MyClaims, bool) {
 func JwtMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//从请求头中获取token
-
+		token2 := c.PostForm("token")
+		fmt.Println(token2)
 		var token tempToken
 		c.BindJSON(&token)
 		tokenStr := token.Token

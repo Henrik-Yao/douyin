@@ -3,6 +3,7 @@ package routes
 import (
 	"douyin/go/controller"
 	"douyin/go/middleware"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -20,6 +21,14 @@ func InitRouter() *gin.Engine {
 		c.JSON(http.StatusOK, gin.H{"token": token})
 	})
 	r.POST("/testToken", middleware.JwtMiddleware(), func(c *gin.Context) {
+
+		fmt.Println("-----", c.PostForm(string("id")))
+		c.JSON(http.StatusOK, gin.H{"msg": "鉴权成功"})
+	})
+	r.POST("/testToken2", func(c *gin.Context) {
+		s := c.Query("token")
+		fmt.Println(s)
+		fmt.Println("-----", c.PostForm("token"))
 		c.JSON(http.StatusOK, gin.H{"msg": "鉴权成功"})
 	})
 
