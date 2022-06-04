@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"douyin/go/common"
+	"douyin/src/common"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"

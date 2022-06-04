@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"douyin/go/common"
-	"douyin/go/model"
+	"douyin/src/common"
+	"douyin/src/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"

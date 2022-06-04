@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"douyin/go/common"
-	"douyin/go/middleware"
-	"douyin/go/model"
-	"douyin/go/service"
+	"douyin/src/common"
+	"douyin/src/middleware"
+	"douyin/src/model"
+	"douyin/src/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"

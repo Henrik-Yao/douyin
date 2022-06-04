@@ -62,5 +62,8 @@ func InitMySql() (err error) {
 
 // Close 关闭数据库连接
 func Close() {
-	SqlSession.Close()
+	err := SqlSession.Close()
+	if err != nil {
+		return
+	}
 }

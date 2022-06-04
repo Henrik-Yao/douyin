@@ -1,9 +1,9 @@
 package main
 
 import (
-	"douyin/go/dao"
-	"douyin/go/model"
-	"douyin/go/routes"
+	"douyin/src/dao"
+	"douyin/src/model"
+	"douyin/src/routes"
 )
 
 func main() {

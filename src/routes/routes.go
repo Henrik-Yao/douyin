@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"douyin/go/controller"
-	"douyin/go/middleware"
+	"douyin/src/controller"
+	"douyin/src/middleware"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"

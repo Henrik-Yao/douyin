@@ -1,8 +1,8 @@
 package service
 
 import (
-	"douyin/go/dao"
-	"douyin/go/model"
+	"douyin/src/dao"
+	"douyin/src/model"
 	"fmt"
 	"github.com/jinzhu/gorm"
 )

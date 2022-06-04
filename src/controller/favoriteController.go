@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"douyin/go/common"
-	"douyin/go/model"
-	"douyin/go/service"
+	"douyin/src/common"
+	"douyin/src/model"
+	"douyin/src/service"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"

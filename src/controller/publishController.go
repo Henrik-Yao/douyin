@@ -5,10 +5,10 @@ package controller
 */
 
 import (
-	"douyin/go/common"
-	"douyin/go/dao"
-	"douyin/go/middleware"
-	"douyin/go/model"
+	"douyin/src/common"
+	"douyin/src/dao"
+	"douyin/src/middleware"
+	"douyin/src/model"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
