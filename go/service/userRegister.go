@@ -86,7 +86,7 @@ func (q *PostUserLoginFlow) updateData() error {
 	}
 
 	//颁发token
-	token, err := middleware.CreateToken(userLogin.Id, userLogin.Username)
+	token, err := middleware.CreateToken(1, userLogin.Username)
 	if err != nil {
 		return err
 	}

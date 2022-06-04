@@ -2,7 +2,6 @@ package controller
 
 import (
 	"douyin/go/dao"
-	"douyin/go/middleware"
 	"douyin/go/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -58,19 +57,19 @@ func (p *ProxyUserInfo) DoQueryUserInfoByUserId(rawId string) error {
 }
 
 func (p *ProxyUserInfo) DoQueryUserInfoByToken(token string) error {
-	userId, err := middleware.JWTAuth(token)
-	if err != nil {
-		return err
-	}
-	//由于得到userinfo不需要组装model层的数据，所以直接调用model层的接口
-	userinfoDAO := dao.NewUserInfoDAO()
-
-	var userInfo model.UserInfo1
-	err = userinfoDAO.QueryUserInfoById(userId, &userInfo)
-	if err != nil {
-		return err
-	}
-	p.UserInfoOk(&userInfo)
+	//userId, err := middleware.JWTAuth(token)
+	//if err != nil {
+	//	return err
+	//}
+	////由于得到userinfo不需要组装model层的数据，所以直接调用model层的接口
+	//userinfoDAO := dao.NewUserInfoDAO()
+	//
+	//var userInfo model.UserInfo1
+	//err = userinfoDAO.QueryUserInfoById(userId, &userInfo)
+	//if err != nil {
+	//	return err
+	//}
+	//p.UserInfoOk(&userInfo)
 	return nil
 }
 

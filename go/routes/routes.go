@@ -27,7 +27,12 @@ func InitRouter() *gin.Engine {
 	})
 	r.POST("/testToken2", middleware.JwtMiddleware(), func(c *gin.Context) {
 		s, _ := c.Get("user_id")
-		fmt.Println("-----", s)
+		var s2 int
+		if v, ok := s.(int); ok {
+			s2 = v
+		}
+		fmt.Println(s2)
+		//fmt.Println("-----", s)
 		c.JSON(http.StatusOK, gin.H{"msg": "鉴权成功"})
 	})
 

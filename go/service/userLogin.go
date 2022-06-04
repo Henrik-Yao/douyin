@@ -72,7 +72,7 @@ func (q *QueryUserLoginFlow) prepareData() error {
 	q.userid = login.Id
 
 	//准备颁发token
-	token, err := middleware.CreateToken(login.Id, login.Username)
+	token, err := middleware.CreateToken(1, login.Username)
 	if err != nil {
 		return err
 	}
