@@ -25,10 +25,9 @@ func InitRouter() *gin.Engine {
 		fmt.Println("-----", c.PostForm(string("id")))
 		c.JSON(http.StatusOK, gin.H{"msg": "鉴权成功"})
 	})
-	r.POST("/testToken2", func(c *gin.Context) {
-		s := c.Query("token")
-		fmt.Println(s)
-		fmt.Println("-----", c.PostForm("token"))
+	r.POST("/testToken2", middleware.JwtMiddleware(), func(c *gin.Context) {
+		s, _ := c.Get("user_id")
+		fmt.Println("-----", s)
 		c.JSON(http.StatusOK, gin.H{"msg": "鉴权成功"})
 	})
 

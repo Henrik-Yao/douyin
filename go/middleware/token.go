@@ -78,7 +78,7 @@ func JwtMiddleware() gin.HandlerFunc {
 			return
 		}
 		//c.Set("username", tokenStruck.UserName)
-		//c.Set("user_id", tokenStruck.UserId)
+		c.Set("user_id", tokenStruck.UserId)
 
 		c.Next()
 	}
