@@ -66,10 +66,11 @@ func FollowList(userId int64) ([]model.Follower, error) {
 
 	for i, m := range followlist {
 		if err := dao.SqlSession.Table("relations").Where("user_id=? AND to_user_id=?", m.UserId, userId).Find(&model.Relation{}).Error; err != nil {
-			//找到
+			//发生错误：没有找到
 			fmt.Println("没找到")
 			followlist[i].IsFollow = false
 		} else {
+			//没有发生错误：找到
 			fmt.Println("找到")
 			followlist[i].IsFollow = true
 		}
