@@ -89,20 +89,7 @@ func Publish(c *gin.Context) {
 
 //////获取列表的方法
 func PublishList(c *gin.Context) {
-	//1.鉴权token
-	token := c.Query("token")
-	tokenStruck, ok := middleware.CheckToken(token)
-	if !ok {
-		c.JSON(http.StatusOK, gin.H{"code": 403, "msg": "token不正确"})
-		c.Abort() //阻止执行
-		return
-	}
-	//token超时
-	if time.Now().Unix() > tokenStruck.ExpiresAt {
-		c.JSON(http.StatusOK, gin.H{"code": 402, "msg": "token过期"})
-		c.Abort() //阻止执行
-		return
-	}
+	//1.中间件鉴权token
 
 	//2.查询当前id用户的所有视频，返回页面
 	userId := c.Query("user_id")

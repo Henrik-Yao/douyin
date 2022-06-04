@@ -4,19 +4,14 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+//用于数据库
 type Relation struct {
 	gorm.Model
 	UserId   int64 `json:"user_id,omitempty"`
 	ToUserId int64 `json:"to_user_id,omitempty"`
 }
 
-type RelationRequest struct {
-	UserId     int64  `json:"user_id"`
-	Token      string `json:"token"`
-	ToUserId   int64  `json:"to_user_id"`
-	ActionType int32  `json:"action_type"`
-}
-
+//用于取数据，关注者/被关注者信息
 type Follower struct {
 	UserId        int64  `json:"id"`
 	Name          string `json:"name"`
