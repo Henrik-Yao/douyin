@@ -25,7 +25,7 @@ type conf struct {
 // 获取配置参数数据
 func (c *conf) getConf() *conf {
 	// 读取resources/application.yaml文件
-	yamlFile, err := ioutil.ReadFile("resources/application.yaml")
+	yamlFile, err := ioutil.ReadFile("../resources/application.yaml")
 	// 若出现错误，打印错误提示
 	if err != nil {
 		fmt.Println(err.Error())

@@ -47,7 +47,7 @@ func InitRouter() *gin.Engine {
 		publishGroup := douyinGroup.Group("/publish")
 		{
 			publishGroup.POST("/action", controller.Publish)
-			publishGroup.GET("/list", controller.PublishList)
+			publishGroup.GET("/list", middleware.JwtMiddleware(), controller.PublishList)
 
 		}
 		// feed只有一层，不需要组了

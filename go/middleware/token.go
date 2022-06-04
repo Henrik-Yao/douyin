@@ -16,9 +16,9 @@ type MyClaims struct {
 	jwt.StandardClaims
 }
 
-type tempToken struct {
-	Token string `json:"token"`
-}
+//type tempToken struct {
+//	Token string `json:"token"`
+//}
 
 // CreateToken 生成token
 func CreateToken(userId int, userName string) (string, error) {
