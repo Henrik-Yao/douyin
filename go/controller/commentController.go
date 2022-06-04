@@ -14,12 +14,12 @@ import (
 )
 
 type CommentListResponse struct {
-	Response
+	model.Response
 	CommentList []CommentResponse `json:"comment_list,omitempty"`
 }
 
 type CommentActionResponse struct {
-	Response
+	model.Response
 	Comment CommentResponse `json:"comment,omitempty"`
 }
 
@@ -120,7 +120,7 @@ func PostComment(c *gin.Context, userId int, text string, videoId int64) {
 		IsFollow:      getUser.IsFollow,
 	}
 
-	c.JSON(http.StatusOK, CommentActionResponse{Response: Response{StatusCode: 0},
+	c.JSON(http.StatusOK, CommentActionResponse{Response: model.Response{StatusCode: 0},
 		Comment: CommentResponse{
 			newComment,
 			currUser,
@@ -141,7 +141,7 @@ func DeleteComment(c *gin.Context, videoId int64, commentId int64) {
 		return
 	}
 
-	c.JSON(http.StatusOK, Response{
+	c.JSON(http.StatusOK, model.Response{
 		StatusCode: 0,
 		StatusMsg:  "Comments have been deleted successfully",
 	})
@@ -179,7 +179,7 @@ func CommentList(c *gin.Context) {
 
 	if commentList == nil {
 		c.JSON(http.StatusOK, CommentListResponse{
-			Response: Response{
+			Response: model.Response{
 				StatusCode: 1,
 				StatusMsg:  "No query found.",
 			},
@@ -187,7 +187,7 @@ func CommentList(c *gin.Context) {
 		})
 	} else {
 		c.JSON(http.StatusOK, CommentListResponse{
-			Response: Response{
+			Response: model.Response{
 				StatusCode: 0,
 				StatusMsg:  "success",
 			},

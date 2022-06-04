@@ -9,10 +9,14 @@ import (
 
 //点赞操作
 func FavoriteAction(favoritereq *model.FavoriteRequest) (err error) {
+	//func FavoriteAction(userId string,videoId string,actionType string) (err error) {
 	//参数获取
 	userId := favoritereq.UserId
 	videoId := favoritereq.VideoId
 	actionType := favoritereq.ActionType
+	fmt.Println(userId)
+	fmt.Println(videoId)
+	fmt.Println(actionType)
 	//不能重复点赞
 	//1-点赞
 	if actionType == 1 {

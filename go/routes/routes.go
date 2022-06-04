@@ -58,17 +58,10 @@ func InitRouter() *gin.Engine {
 		// feed只有一层，不需要组了
 		douyinGroup.GET("/feed/", controller.Feed)
 
-		//// feed路由组
-		//feedGroup := douyinGroup.Group("user")
-		//{
-		//	feedGroup.POST("/test", controller.CreateUser)
-		//}
-		//
-		//// favorite路由组
 		favoriteGroup := douyinGroup.Group("favorite")
 		{
-			favoriteGroup.POST("/action", controller.Favorite)
-			favoriteGroup.GET("/list", controller.FavoriteList)
+			favoriteGroup.POST("/action", middleware.JwtMiddleware(), controller.Favorite)
+			favoriteGroup.GET("/list", middleware.JwtMiddleware(), controller.FavoriteList)
 		}
 		//
 		//// comment路由组

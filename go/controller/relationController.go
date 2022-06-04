@@ -32,12 +32,12 @@ func RelationAction(c *gin.Context) {
 	//3.service层处理
 	err := service.RelationAction(user_id, to_user_id, action_type)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, Response{
+		c.JSON(http.StatusBadRequest, model.Response{
 			StatusCode: 1,
 			StatusMsg:  err.Error(),
 		})
 	} else {
-		c.JSON(http.StatusOK, Response{
+		c.JSON(http.StatusOK, model.Response{
 			StatusCode: 0,
 			StatusMsg:  "操作成功！",
 		})
