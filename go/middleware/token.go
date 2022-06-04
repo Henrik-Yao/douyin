@@ -53,12 +53,10 @@ func CheckToken(token string) (*MyClaims, bool) {
 // JwtMiddleware jwt中间件
 func JwtMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		//从请求头中获取token
-		token2 := c.PostForm("token")
-		fmt.Println(token2)
-		var token tempToken
-		c.BindJSON(&token)
-		tokenStr := token.Token
+		tokenStr := c.Query("token")
+		if tokenStr == "" {
+			tokenStr = c.PostForm("token")
+		}
 		fmt.Println(tokenStr)
 		//用户不存在
 		if tokenStr == "" {
