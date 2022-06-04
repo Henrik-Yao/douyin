@@ -89,27 +89,15 @@ func Publish(c *gin.Context) {
 
 //////获取列表的方法
 func PublishList(c *gin.Context) {
-	////1.鉴权token
-	//token := c.Query("token")
-	//tokenStruck, ok := middleware.CheckToken(token)
-	//if !ok {
-	//	c.JSON(http.StatusOK, gin.H{"code": 403, "msg": "token不正确"})
-	//	c.Abort() //阻止执行
-	//	return
-	//}
-	////token超时
-	//if time.Now().Unix() > tokenStruck.ExpiresAt {
-	//	c.JSON(http.StatusOK, gin.H{"code": 402, "msg": "token过期"})
-	//	c.Abort() //阻止执行
-	//	return
-	//}
+	//1.中间件鉴权token
 
 	//2.查询当前id用户的所有视频，返回页面
 	userId := c.Query("user_id")
 	//根据id查找用户
+	//自己多做了，如果前人建库，直接在他的库中进行获取即可
 	var userLoginInfo model.UserLoginInfo
 	dao.SqlSession.Table("user_login_infos").Where("user_id=?", userId).First(&userLoginInfo)
-	loginUser := model.UserLogin{
+	userLogin := model.UserLogin{
 		UserId:        userLoginInfo.UserId,
 		Name:          userLoginInfo.Name,
 		FollowCount:   userLoginInfo.FollowCount,
@@ -134,7 +122,7 @@ func PublishList(c *gin.Context) {
 		for i := 0; i < len(videoNoAuthorList); i++ {
 			video := model.Video{
 				VideoId:       int64(videoNoAuthorList[i].ID),
-				Author:        loginUser,
+				Author:        userLogin,
 				PlayUrl:       videoNoAuthorList[i].PlayUrl,
 				CoverUrl:      videoNoAuthorList[i].CoverUrl,
 				FavoriteCount: videoNoAuthorList[i].FavoriteCount,
