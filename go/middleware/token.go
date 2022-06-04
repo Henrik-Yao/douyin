@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"douyin/go/model"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -53,15 +54,14 @@ func CheckToken(token string) (*MyClaims, bool) {
 // JwtMiddleware jwt中间件
 func JwtMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		//从请求头中获取token
-
-		var token tempToken
-		c.BindJSON(&token)
-		tokenStr := token.Token
+		tokenStr := c.Query("token")
+		if tokenStr == "" {
+			tokenStr = c.PostForm("token")
+		}
 		fmt.Println(tokenStr)
 		//用户不存在
 		if tokenStr == "" {
-			c.JSON(http.StatusOK, gin.H{"code": 401, "msg": "用户不存在"})
+			c.JSON(http.StatusOK, model.Response{StatusCode: 401, StatusMsg: "用户不存在"})
 			c.Abort() //阻止执行
 			return
 		}
@@ -78,8 +78,8 @@ func JwtMiddleware() gin.HandlerFunc {
 			c.Abort() //阻止执行
 			return
 		}
-		//c.Set("username", tokenStruck.UserName)
-		//c.Set("user_id", tokenStruck.UserId)
+		c.Set("username", tokenStruck.UserName)
+		c.Set("user_id", tokenStruck.UserId)
 
 		c.Next()
 	}

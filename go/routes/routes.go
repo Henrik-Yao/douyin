@@ -3,6 +3,7 @@ package routes
 import (
 	"douyin/go/controller"
 	"douyin/go/middleware"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -20,6 +21,18 @@ func InitRouter() *gin.Engine {
 		c.JSON(http.StatusOK, gin.H{"token": token})
 	})
 	r.POST("/testToken", middleware.JwtMiddleware(), func(c *gin.Context) {
+
+		fmt.Println("-----", c.PostForm(string("id")))
+		c.JSON(http.StatusOK, gin.H{"msg": "鉴权成功"})
+	})
+	r.POST("/testToken2", middleware.JwtMiddleware(), func(c *gin.Context) {
+		s, _ := c.Get("user_id")
+		var s2 int
+		if v, ok := s.(int); ok {
+			s2 = v
+		}
+		fmt.Println(s2)
+		//fmt.Println("-----", s)
 		c.JSON(http.StatusOK, gin.H{"msg": "鉴权成功"})
 	})
 
@@ -30,6 +43,9 @@ func InitRouter() *gin.Engine {
 		userGroup := douyinGroup.Group("/user")
 		{
 			userGroup.POST("/test", middleware.JwtMiddleware(), controller.CreateUser)
+			userGroup.GET("/user/", middleware.JwtMiddleware(), controller.UserInfoHandler)
+			userGroup.POST("/user/login/", middleware.JwtMiddleware(), controller.UserLoginHandler)
+			userGroup.POST("/user/register/", middleware.JwtMiddleware(), controller.UserRegisterHandler)
 		}
 
 		// publish路由组

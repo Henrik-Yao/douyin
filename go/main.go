@@ -20,6 +20,6 @@ func main() {
 	dao.SqlSession.AutoMigrate(&model.FavoriteAction{})
 	//注册路由
 	r := routes.InitRouter()
-	//启动端口为8081的项目
-	r.Run(":8081")
+	//启动端口为8080的项目
+	r.Run(":8080")
 }
