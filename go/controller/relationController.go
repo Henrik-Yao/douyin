@@ -18,7 +18,7 @@ type FollowerListResponse struct {
 	UserList []model.Follower `json:"user_list"`
 }
 
-// RelationAction no practical effect, just check if token is valid
+// RelationAction
 func RelationAction(c *gin.Context) {
 
 	//1.取数据

@@ -9,6 +9,7 @@ import (
 
 var userdata string = "user_login_infos"
 
+//关注操作
 func RelationAction(userId int64, touserId int64, actionType int32) (err error) {
 
 	//数据准备
@@ -56,6 +57,7 @@ func RelationAction(userId int64, touserId int64, actionType int32) (err error) 
 	return nil
 }
 
+//获取关注列表
 func FollowList(userId int64) ([]model.Follower, error) {
 	//2.先查relation表
 	var followlist []model.Follower
@@ -80,6 +82,7 @@ func FollowList(userId int64) ([]model.Follower, error) {
 	return followlist, nil
 }
 
+//获取粉丝列表
 func FollowerList(userId int64) ([]model.Follower, error) {
 	//2.先查relation表
 	var followlist []model.Follower
