@@ -5,30 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c3932615-c514-4842-8a49-1fb3ce6acb05" name="默认变更列表" comment="">
-      <change beforePath="$PROJECT_DIR$/go/common/error.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/common/error.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go/common/response.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/common/response.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go/controller/commentController.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/controller/commentController.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go/controller/favoriteController.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/controller/favoriteController.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go/controller/feedController.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/controller/feedController.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go/controller/publishController.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/controller/publishController.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go/controller/relationController.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/controller/relationController.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go/controller/userController.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/controller/userController.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go/dao/mysql.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/dao/mysql.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go/middleware/token.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/middleware/token.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go/model/comment.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/model/comment.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go/model/favorite.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/model/favorite.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go/model/follow.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/model/follow.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go/model/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/model/user.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go/model/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/model/video.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go/routes/routes.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/routes.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go/service/commentService.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/commentService.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go/service/favoriteService.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/favoriteService.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go/service/followersService.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/followersService.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go/service/followingService.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/followingService.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go/service/userService.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/userService.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go/videos/11111_佛猴.png" beforeDir="false" afterPath="$PROJECT_DIR$/src/videos/11111_佛猴.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go/videos/11111_雪地.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/src/videos/11111_雪地.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
