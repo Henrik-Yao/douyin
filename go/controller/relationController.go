@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"douyin/go/common"
 	"douyin/go/middleware"
 	"douyin/go/model"
 	"douyin/go/service"
@@ -10,12 +11,12 @@ import (
 )
 
 type FollowListResponse struct {
-	model.Response
+	common.Response
 	UserList []model.Follower `json:"user_list"`
 }
 
 type FollowerListResponse struct {
-	model.Response
+	common.Response
 	UserList []model.Follower `json:"user_list"`
 }
 
@@ -32,12 +33,12 @@ func RelationAction(c *gin.Context) {
 	//3.service层处理
 	err := service.RelationAction(user_id, to_user_id, action_type)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, model.Response{
+		c.JSON(http.StatusBadRequest, common.Response{
 			StatusCode: 1,
 			StatusMsg:  err.Error(),
 		})
 	} else {
-		c.JSON(http.StatusOK, model.Response{
+		c.JSON(http.StatusOK, common.Response{
 			StatusCode: 0,
 			StatusMsg:  "操作成功！",
 		})
@@ -56,7 +57,7 @@ func FollowList(c *gin.Context) {
 	followlist, err := service.FollowList(user_id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, FollowListResponse{
-			Response: model.Response{
+			Response: common.Response{
 				StatusCode: 1,
 				StatusMsg:  "查找列表失败！",
 			},
@@ -64,7 +65,7 @@ func FollowList(c *gin.Context) {
 		})
 	} else {
 		c.JSON(http.StatusOK, FollowListResponse{
-			Response: model.Response{
+			Response: common.Response{
 				StatusCode: 0,
 				StatusMsg:  "已找到列表！",
 			},
@@ -83,7 +84,7 @@ func FollowerList(c *gin.Context) {
 	followlist, err := service.FollowerList(user_id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, FollowListResponse{
-			Response: model.Response{
+			Response: common.Response{
 				StatusCode: 1,
 				StatusMsg:  "查找列表失败！",
 			},
@@ -91,7 +92,7 @@ func FollowerList(c *gin.Context) {
 		})
 	} else {
 		c.JSON(http.StatusOK, FollowListResponse{
-			Response: model.Response{
+			Response: common.Response{
 				StatusCode: 0,
 				StatusMsg:  "已找到列表！",
 			},

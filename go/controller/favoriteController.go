@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"douyin/go/common"
 	"douyin/go/model"
 	"douyin/go/service"
 	"fmt"
@@ -9,7 +10,7 @@ import (
 )
 
 type FavoriteListResponse struct {
-	model.Response
+	common.Response
 	VideoList []model.Video `json:"video_list"`
 }
 
@@ -25,12 +26,12 @@ func Favorite(c *gin.Context) {
 	//函数调用及响应
 	err := service.FavoriteAction(&favoritereq)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, model.Response{
+		c.JSON(http.StatusBadRequest, common.Response{
 			StatusCode: 1,
 			StatusMsg:  err.Error(),
 		})
 	} else {
-		c.JSON(http.StatusOK, model.Response{
+		c.JSON(http.StatusOK, common.Response{
 			StatusCode: 0,
 			StatusMsg:  "操作成功！",
 		})
@@ -46,7 +47,7 @@ func FavoriteList(c *gin.Context) {
 	videoList, err := service.FavoriteList(userId)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, FavoriteListResponse{
-			Response: model.Response{
+			Response: common.Response{
 				StatusCode: 1,
 				StatusMsg:  "查找列表失败！",
 			},
@@ -54,7 +55,7 @@ func FavoriteList(c *gin.Context) {
 		})
 	} else {
 		c.JSON(http.StatusOK, FavoriteListResponse{
-			Response: model.Response{
+			Response: common.Response{
 				StatusCode: 0,
 				StatusMsg:  "已找到列表！",
 			},

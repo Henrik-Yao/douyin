@@ -5,6 +5,7 @@ package controller
 */
 
 import (
+	"douyin/go/common"
 	"douyin/go/dao"
 	"douyin/go/middleware"
 	"douyin/go/model"
@@ -17,7 +18,7 @@ import (
 )
 
 type VideoListResponse struct {
-	model.Response
+	common.Response
 	VideoList []model.Video `json:"video_list"`
 }
 
@@ -44,7 +45,7 @@ func Publish(c *gin.Context) {
 	//2.接收传来的数据
 	data, err := c.FormFile("data")
 	if err != nil {
-		c.JSON(http.StatusOK, model.Response{
+		c.JSON(http.StatusOK, common.Response{
 			StatusCode: 1,
 			StatusMsg:  err.Error(),
 		})
@@ -56,13 +57,13 @@ func Publish(c *gin.Context) {
 	finalName := fmt.Sprintf("%d_%s", user_id, filename)
 	saveFile := filepath.Join("./videos/", finalName)
 	if err := c.SaveUploadedFile(data, saveFile); err != nil {
-		c.JSON(http.StatusOK, model.Response{
+		c.JSON(http.StatusOK, common.Response{
 			StatusCode: 1,
 			StatusMsg:  err.Error(),
 		})
 		return
 	}
-	c.JSON(http.StatusOK, model.Response{
+	c.JSON(http.StatusOK, common.Response{
 		StatusCode: 0,
 		StatusMsg:  finalName + "--上传成功",
 	})
@@ -109,7 +110,7 @@ func PublishList(c *gin.Context) {
 
 	if len(videoNoAuthorList) == 0 {
 		c.JSON(http.StatusOK, VideoListResponse{
-			Response: model.Response{
+			Response: common.Response{
 				StatusCode: 1,
 				StatusMsg:  "No query found.",
 			},
@@ -132,7 +133,7 @@ func PublishList(c *gin.Context) {
 			videoList = append(videoList, video)
 		}
 		c.JSON(http.StatusOK, VideoListResponse{
-			Response: model.Response{
+			Response: common.Response{
 				StatusCode: 0,
 				StatusMsg:  "success",
 			},

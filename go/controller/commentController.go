@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"douyin/go/common"
 	"douyin/go/dao"
 	"douyin/go/middleware"
 	"douyin/go/model"
@@ -13,12 +14,12 @@ import (
 )
 
 type CommentListResponse struct {
-	model.Response
+	common.Response
 	CommentList []CommentResponse `json:"comment_list,omitempty"`
 }
 
 type CommentActionResponse struct {
-	model.Response
+	common.Response
 	Comment CommentResponse `json:"comment,omitempty"`
 }
 
@@ -95,7 +96,7 @@ func PostComment(c *gin.Context, userId int, text string, videoId int64) {
 		IsFollow:      getUser.IsFollow,
 	}
 
-	c.JSON(http.StatusOK, CommentActionResponse{Response: model.Response{StatusCode: 0},
+	c.JSON(http.StatusOK, CommentActionResponse{Response: common.Response{StatusCode: 0},
 		Comment: CommentResponse{
 			newComment,
 			currUser,
@@ -116,7 +117,7 @@ func DeleteComment(c *gin.Context, videoId int64, commentId int64) {
 		return
 	}
 
-	c.JSON(http.StatusOK, model.Response{
+	c.JSON(http.StatusOK, common.Response{
 		StatusCode: 0,
 		StatusMsg:  "Comments have been deleted successfully",
 	})
@@ -143,7 +144,7 @@ func CommentList(c *gin.Context) {
 
 	if commentList == nil {
 		c.JSON(http.StatusOK, CommentListResponse{
-			Response: model.Response{
+			Response: common.Response{
 				StatusCode: 1,
 				StatusMsg:  "No query found.",
 			},
@@ -151,7 +152,7 @@ func CommentList(c *gin.Context) {
 		})
 	} else {
 		c.JSON(http.StatusOK, CommentListResponse{
-			Response: model.Response{
+			Response: common.Response{
 				StatusCode: 0,
 				StatusMsg:  "success",
 			},

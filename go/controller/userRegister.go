@@ -1,14 +1,14 @@
 package controller
 
 import (
-	"douyin/go/model"
+	"douyin/go/common"
 	"douyin/go/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type UserRegisterResponse struct {
-	model.Response
+	common.Response
 	*service.UserLoginResponse
 }
 
@@ -20,7 +20,7 @@ func UserRegisterHandler(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusOK, UserRegisterResponse{
-			Response: model.Response{
+			Response: common.Response{
 				StatusCode: 1,
 				StatusMsg:  err.Error(),
 			},
@@ -28,7 +28,7 @@ func UserRegisterHandler(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, UserRegisterResponse{
-		Response:          model.Response{StatusCode: 0},
+		Response:          common.Response{StatusCode: 0},
 		UserLoginResponse: registerResponse,
 	})
 }

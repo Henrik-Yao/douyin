@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"douyin/go/common"
 	"douyin/go/dao"
 	"douyin/go/model"
 	"github.com/gin-gonic/gin"
@@ -9,7 +10,7 @@ import (
 )
 
 type UserResponse struct {
-	model.Response
+	common.Response
 	User *model.UserInfo `json:"user"`
 }
 
@@ -75,13 +76,13 @@ func (p *ProxyUserInfo) DoQueryUserInfoByToken(token string) error {
 
 func (p *ProxyUserInfo) UserInfoError(msg string) {
 	p.c.JSON(http.StatusOK, UserResponse{
-		Response: model.Response{StatusCode: 1, StatusMsg: msg},
+		Response: common.Response{StatusCode: 1, StatusMsg: msg},
 	})
 }
 
 func (p *ProxyUserInfo) UserInfoOk(user *model.UserInfo) {
 	p.c.JSON(http.StatusOK, UserResponse{
-		Response: model.Response{StatusCode: 0},
+		Response: common.Response{StatusCode: 0},
 		User:     user,
 	})
 }
