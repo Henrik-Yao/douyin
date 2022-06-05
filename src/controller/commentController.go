@@ -3,11 +3,10 @@ package controller
 import (
 	"douyin/src/common"
 	"douyin/src/dao"
-	"douyin/src/middleware"
 	"douyin/src/model"
+	"douyin/src/service"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -23,20 +22,26 @@ type CommentActionResponse struct {
 	Comment CommentResponse `json:"comment,omitempty"`
 }
 
+type UserRespoonse struct {
+	ID            int64  `json:"id,omitempty"`
+	Name          string `json:"name,omitempty"`
+	FollowCount   int32  `json:"follow_count,omitempty"`
+	FollowerCount int32  `json:"follower_count,omitempty"`
+	IsFollow      bool   `json:"is_follow,omitempty"`
+}
 type CommentResponse struct {
-	model.Comment
-	User model.UserLoginInfo `json:"user,omitempty"`
+	ID         int64         `json:"id,omitempty"`
+	Content    string        `json:"content,omitempty"`
+	CreateDate string        `json:"create_date,omitempty"`
+	User       UserRespoonse `json:"user,omitempty"`
 }
 
 func CommentAction(c *gin.Context) {
 
-	// authentication
-	middleware.JwtMiddleware()
-
 	getUserId, _ := c.Get("user_id")
-	var userId int
+	var userId int64
 	if v, ok := getUserId.(int); ok {
-		userId = v
+		userId = int64(v)
 	}
 
 	actionType := c.Query("action_type")
@@ -45,7 +50,10 @@ func CommentAction(c *gin.Context) {
 
 	// Unsupported type
 	if actionType != "1" && actionType != "2" {
-		c.JSON(http.StatusOK, gin.H{"code": 404, "msg": "Unsupported actionType"})
+		c.JSON(http.StatusOK, common.Response{
+			StatusCode: 405,
+			StatusMsg:  "Unsupported actionType",
+		})
 		c.Abort()
 		return
 	}
@@ -61,102 +69,126 @@ func CommentAction(c *gin.Context) {
 
 }
 
-func PostComment(c *gin.Context, userId int, text string, videoId int64) {
+func PostComment(c *gin.Context, userId int64, text string, videoId int64) {
 
 	newComment := model.Comment{
-		UserId:     int64(userId),
-		Content:    text,
-		CreateDate: time.Now().String(),
-		VideoId:    videoId,
-		IsDeleted:  false,
+		VideoId: videoId,
+		UserId:  int64(userId),
+		Content: text,
 	}
 
-	dao.SqlSession.AutoMigrate(&model.Comment{})
-
-	err := dao.SqlSession.Transaction(func(db *gorm.DB) error {
-		// Add a comment record
-		if err := dao.SqlSession.Table("comment").Create(&newComment).Error; err != nil {
+	err1 := dao.SqlSession.Transaction(func(db *gorm.DB) error {
+		if err := service.PostComment(newComment); err != nil {
 			return err
 		}
-		// Change the number of video comments
-		dao.SqlSession.Table("video_no_authors").Where("id = ?", videoId).Update("comment_count", gorm.Expr("comment_count + 1"))
+		if err := service.AddCommentCount(videoId); err != nil {
+			return err
+		}
 		return nil
 	})
-	if err != nil {
+	getUser, err2 := service.GetUser(userId)
+
+	if err1 != nil || err2 != nil {
+		c.JSON(http.StatusOK, common.Response{
+			StatusCode: 403,
+			StatusMsg:  "Failed to post comment",
+		})
+		c.Abort()
 		return
 	}
 
-	var getUser model.UserLoginInfo
-	dao.SqlSession.Table("user_login_infos").Where("user_id=?", userId).Find(&getUser)
-	currUser := model.UserLoginInfo{
-		UserId:        getUser.UserId,
-		Name:          getUser.Name,
-		FollowCount:   getUser.FollowCount,
-		FollowerCount: getUser.FollowerCount,
-		IsFollow:      getUser.IsFollow,
-	}
-
-	c.JSON(http.StatusOK, CommentActionResponse{Response: common.Response{StatusCode: 0},
+	c.JSON(http.StatusOK, CommentActionResponse{
+		Response: common.Response{
+			StatusCode: 0,
+			StatusMsg:  "post the comment successfully",
+		},
 		Comment: CommentResponse{
-			newComment,
-			currUser,
-		}})
+			ID:         int64(newComment.ID),
+			Content:    newComment.Content,
+			CreateDate: newComment.CreatedAt.Format("01-02"),
+			User: UserRespoonse{
+				ID:            int64(getUser.ID),
+				Name:          getUser.Name,
+				FollowCount:   getUser.FollowCount,
+				FollowerCount: getUser.FollowerCount,
+				IsFollow:      false, // 需判断当前用户是否关注了视频作者，待其他servic完善后此处再完善
+			},
+		},
+	})
 }
 
 func DeleteComment(c *gin.Context, videoId int64, commentId int64) {
+
 	err := dao.SqlSession.Transaction(func(db *gorm.DB) error {
-		// Modify a field that indicates whether it has been deleted
-		if err := dao.SqlSession.Table("comment").Where("id = ?", commentId).Update("is_deleted", true).Error; err != nil {
+		if err := service.DeleteComment(commentId); err != nil {
 			return err
 		}
-		// Change the number of video comments
-		dao.SqlSession.Table("video_no_authors").Where("id = ?", videoId).Update("comment_count", gorm.Expr("comment_count - 1"))
+		if err := service.ReduceCommentCount(videoId); err != nil {
+			return err
+		}
 		return nil
 	})
+
 	if err != nil {
+		c.JSON(http.StatusOK, common.Response{
+			StatusCode: 403,
+			StatusMsg:  "Failed to delete comment",
+		})
+		c.Abort()
 		return
 	}
 
 	c.JSON(http.StatusOK, common.Response{
 		StatusCode: 0,
-		StatusMsg:  "Comments have been deleted successfully",
+		StatusMsg:  "delete the comment successfully",
 	})
 }
 
 func CommentList(c *gin.Context) {
 
-	// authentication
-	middleware.JwtMiddleware()
-
 	videoId := c.Query("video_id")
-	var commentList []model.Comment
-	dao.SqlSession.Table("comment").Where("video_id=? and is_deleted = false", videoId).Find(&commentList)
+	commentList, err := service.GetCommentList(videoId)
+
+	if err != nil {
+		c.JSON(http.StatusOK, common.Response{
+			StatusCode: 403,
+			StatusMsg:  "Failed to get commentList",
+		})
+		c.Abort()
+		return
+	}
 
 	var responseCommentList []CommentResponse
 	for i := 0; i < len(commentList); i++ {
-		var getUser model.UserLoginInfo
-		dao.SqlSession.Table("user_login_infos").Where("user_id=?", commentList[i].UserId).Find(&getUser)
+		getUser, err := service.GetUser(commentList[i].UserId)
+		if err != nil {
+			c.JSON(http.StatusOK, common.Response{
+				StatusCode: 403,
+				StatusMsg:  "Failed to get commentList.",
+			})
+			c.Abort()
+			return
+		}
 		responseCommentList[i] = CommentResponse{
-			commentList[i],
-			getUser,
+			ID:         int64(commentList[i].ID),
+			Content:    commentList[i].Content,
+			CreateDate: commentList[i].CreatedAt.Format("01-02"),
+			User: UserRespoonse{
+				ID:            int64(getUser.ID),
+				Name:          getUser.Name,
+				FollowCount:   getUser.FollowCount,
+				FollowerCount: getUser.FollowerCount,
+				IsFollow:      false, // 需判断当前用户是否关注了视频作者，待其他service完善后此处再完善
+			},
 		}
 	}
 
-	if commentList == nil {
-		c.JSON(http.StatusOK, CommentListResponse{
-			Response: common.Response{
-				StatusCode: 1,
-				StatusMsg:  "No query found.",
-			},
-			CommentList: nil,
-		})
-	} else {
-		c.JSON(http.StatusOK, CommentListResponse{
-			Response: common.Response{
-				StatusCode: 0,
-				StatusMsg:  "success",
-			},
-			CommentList: responseCommentList,
-		})
-	}
+	c.JSON(http.StatusOK, CommentListResponse{
+		Response: common.Response{
+			StatusCode: 0,
+			StatusMsg:  "Successfully obtained the comment list.",
+		},
+		CommentList: responseCommentList,
+	})
+
 }
