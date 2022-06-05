@@ -22,7 +22,7 @@ type CommentActionResponse struct {
 	Comment CommentResponse `json:"comment,omitempty"`
 }
 
-type UserRespoonse struct {
+type UserResponse struct {
 	ID            int64  `json:"id,omitempty"`
 	Name          string `json:"name,omitempty"`
 	FollowCount   int32  `json:"follow_count,omitempty"`
@@ -30,10 +30,10 @@ type UserRespoonse struct {
 	IsFollow      bool   `json:"is_follow,omitempty"`
 }
 type CommentResponse struct {
-	ID         int64         `json:"id,omitempty"`
-	Content    string        `json:"content,omitempty"`
-	CreateDate string        `json:"create_date,omitempty"`
-	User       UserRespoonse `json:"user,omitempty"`
+	ID         int64        `json:"id,omitempty"`
+	Content    string       `json:"content,omitempty"`
+	CreateDate string       `json:"create_date,omitempty"`
+	User       UserResponse `json:"user,omitempty"`
 }
 
 func CommentAction(c *gin.Context) {
@@ -106,7 +106,7 @@ func PostComment(c *gin.Context, userId int64, text string, videoId int64) {
 			ID:         int64(newComment.ID),
 			Content:    newComment.Content,
 			CreateDate: newComment.CreatedAt.Format("01-02"),
-			User: UserRespoonse{
+			User: UserResponse{
 				ID:            int64(getUser.ID),
 				Name:          getUser.Name,
 				FollowCount:   getUser.FollowCount,
@@ -173,7 +173,7 @@ func CommentList(c *gin.Context) {
 			ID:         int64(commentList[i].ID),
 			Content:    commentList[i].Content,
 			CreateDate: commentList[i].CreatedAt.Format("01-02"),
-			User: UserRespoonse{
+			User: UserResponse{
 				ID:            int64(getUser.ID),
 				Name:          getUser.Name,
 				FollowCount:   getUser.FollowCount,
