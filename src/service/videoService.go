@@ -49,5 +49,5 @@ func GetVideoAuthor(videoId uint) (uint, error) {
 	if err := dao.SqlSession.Table("videos").Where("id = ?", videoId).Find(&video).Error; err != nil {
 		return video.ID, err
 	}
-	return video.ID, nil
+	return video.AuthorId, nil
 }
