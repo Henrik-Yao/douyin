@@ -6,6 +6,6 @@ type User struct {
 	gorm.Model
 	Name          string `json:"name"`
 	Password      string `json:"password"`
-	FollowCount   int32  `json:"follow_count"`
-	FollowerCount int32  `json:"follower_count"`
+	FollowCount   uint   `json:"follow_count"`
+	FollowerCount uint   `json:"follower_count"`
 }

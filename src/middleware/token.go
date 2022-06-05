@@ -12,17 +12,13 @@ import (
 var Key = []byte("byte dance 11111 return")
 
 type MyClaims struct {
-	UserId   int    `json:"user_id"`
+	UserId   uint   `json:"user_id"`
 	UserName string `json:"username"`
 	jwt.StandardClaims
 }
 
-type tempToken struct {
-	Token string `json:"token"`
-}
-
 // CreateToken 生成token
-func CreateToken(userId int, userName string) (string, error) {
+func CreateToken(userId uint, userName string) (string, error) {
 	expireTime := time.Now().Add(24 * time.Hour) //过期时间
 	nowTime := time.Now()                        //当前时间
 	claims := MyClaims{
@@ -68,13 +64,19 @@ func JwtMiddleware() gin.HandlerFunc {
 		//验证token
 		tokenStruck, ok := CheckToken(tokenStr)
 		if !ok {
-			c.JSON(http.StatusOK, gin.H{"code": 403, "msg": "token不正确"})
+			c.JSON(http.StatusOK, common.Response{
+				StatusCode: 403,
+				StatusMsg:  "token不正确",
+			})
 			c.Abort() //阻止执行
 			return
 		}
 		//token超时
 		if time.Now().Unix() > tokenStruck.ExpiresAt {
-			c.JSON(http.StatusOK, gin.H{"code": 402, "msg": "token过期"})
+			c.JSON(http.StatusOK, common.Response{
+				StatusCode: 402,
+				StatusMsg:  "token过期",
+			})
 			c.Abort() //阻止执行
 			return
 		}
