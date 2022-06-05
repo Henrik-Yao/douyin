@@ -5,12 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c3932615-c514-4842-8a49-1fb3ce6acb05" name="默认变更列表" comment="">
-      <change beforePath="$PROJECT_DIR$/src/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/model/comment.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/model/comment.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/model/favorite.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/model/favorite.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/model/follow.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/model/follow.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/model/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/model/user.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/model/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/model/video.go" afterDir="false" />
+
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/controller/commentController.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/controller/commentController.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/routes.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/routes.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/commentService.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/commentService.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/userService.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/userService.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/videoService.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/videoService.go" afterDir="false" />
+
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,7 +26,7 @@
       </list>
     </option>
   </component>
-  <component name="GOROOT" url="file:///usr/local/go" />
+  <component name="GOROOT" url="file://$PROJECT_DIR$/../../Go" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="RESET_MODE" value="HARD" />
@@ -43,59 +45,3 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
-    &quot;RunOnceActivity.go.format.on.save.advertiser.fired&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.watchers.conflict.with.on.save.actions.check.performed&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;configurable..is.expanded&quot;: &quot;false&quot;,
-    &quot;configurable.GoLibrariesConfigurable.is.expanded&quot;: &quot;true&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/bytedance&quot;
-  }
-}</component>
-  <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/resources" />
-      <recent name="$PROJECT_DIR$/go/common" />
-    </key>
-  </component>
-  <component name="RunManager">
-    <configuration name="go build douyin/src" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true">
-      <module name="douyin" />
-      <working_directory value="$PROJECT_DIR$" />
-      <kind value="PACKAGE" />
-      <package value="douyin/src" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$/go/main.go" />
-      <method v="2" />
-    </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Go 构建.go build douyin/src" />
-      </list>
-    </recent_temporary>
-  </component>
-  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="应用程序级" UseSingleDictionary="true" transferred="true" />
-  <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="3" />
-  </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State />
-          </value>
-        </entry>
-      </map>
-    </option>
-  </component>
-  <component name="VgoProject">
-    <settings-migrated>true</settings-migrated>
-  </component>
-</project>
