@@ -5,7 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c3932615-c514-4842-8a49-1fb3ce6acb05" name="默认变更列表" comment="">
-      <change afterPath="$PROJECT_DIR$/src/service/videoService.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,18 +61,18 @@
     </key>
   </component>
   <component name="RunManager">
-    <configuration name="go build douyin/go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+    <configuration name="go build douyin/src" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true">
       <module name="douyin" />
       <working_directory value="$PROJECT_DIR$" />
       <kind value="PACKAGE" />
-      <package value="douyin/go" />
+      <package value="douyin/src" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$/go/main.go" />
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Go 构建.go build douyin/go" />
+        <item itemvalue="Go 构建.go build douyin/src" />
       </list>
     </recent_temporary>
   </component>
