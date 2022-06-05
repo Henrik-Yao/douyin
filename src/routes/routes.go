@@ -42,9 +42,9 @@ func InitRouter() *gin.Engine {
 		userGroup := douyinGroup.Group("/user")
 		{
 			userGroup.POST("/test", middleware.JwtMiddleware(), controller.CreateUser)
-			userGroup.GET("/user/", middleware.JwtMiddleware(), controller.UserInfoHandler)
-			userGroup.POST("/user/login/", middleware.JwtMiddleware(), controller.UserLoginHandler)
-			userGroup.POST("/user/register/", middleware.JwtMiddleware(), controller.UserRegisterHandler)
+			userGroup.GET("/user/", middleware.JwtMiddleware(), controller.UserInfo)
+			userGroup.POST("/user/login/", middleware.JwtMiddleware(), controller.UserLogin)
+			userGroup.POST("/user/register/", middleware.JwtMiddleware(), controller.UserRegister)
 		}
 
 		// publish路由组
@@ -77,6 +77,7 @@ func InitRouter() *gin.Engine {
 			relationGroup.GET("/follow/list", controller.FollowList)
 			relationGroup.GET("/follower/list", controller.FollowerList)
 		}
+
 	}
 
 	return r
