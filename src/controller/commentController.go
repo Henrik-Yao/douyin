@@ -29,6 +29,7 @@ type UserResponse struct {
 	FollowerCount uint   `json:"follower_count,omitempty"`
 	IsFollow      bool   `json:"is_follow,omitempty"`
 }
+
 type CommentResponse struct {
 	ID         uint         `json:"id,omitempty"`
 	Content    string       `json:"content,omitempty"`
@@ -77,6 +78,7 @@ func PostComment(c *gin.Context, userId uint, text string, videoId uint) {
 		Content: text,
 	}
 
+	// Post a comment and change the comment count (using database transaction)
 	err1 := dao.SqlSession.Transaction(func(db *gorm.DB) error {
 		if err := service.PostComment(newComment); err != nil {
 			return err
@@ -120,6 +122,7 @@ func PostComment(c *gin.Context, userId uint, text string, videoId uint) {
 
 func DeleteComment(c *gin.Context, videoId uint, commentId uint) {
 
+	// Remove a comment and reduce the comment count (using database transaction)
 	err := dao.SqlSession.Transaction(func(db *gorm.DB) error {
 		if err := service.DeleteComment(commentId); err != nil {
 			return err
@@ -181,7 +184,7 @@ func CommentList(c *gin.Context) {
 		responseCommentList[i] = CommentResponse{
 			ID:         commentList[i].ID,
 			Content:    commentList[i].Content,
-			CreateDate: commentList[i].CreatedAt.Format("01-02"),
+			CreateDate: commentList[i].CreatedAt.Format("01-02"), // mm-dd
 			User: UserResponse{
 				ID:            getUser.ID,
 				Name:          getUser.Name,
