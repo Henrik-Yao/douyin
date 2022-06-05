@@ -23,14 +23,14 @@ type CommentActionResponse struct {
 }
 
 type UserResponse struct {
-	ID            int64  `json:"id,omitempty"`
+	ID            uint   `json:"id,omitempty"`
 	Name          string `json:"name,omitempty"`
-	FollowCount   int32  `json:"follow_count,omitempty"`
-	FollowerCount int32  `json:"follower_count,omitempty"`
+	FollowCount   uint   `json:"follow_count,omitempty"`
+	FollowerCount uint   `json:"follower_count,omitempty"`
 	IsFollow      bool   `json:"is_follow,omitempty"`
 }
 type CommentResponse struct {
-	ID         int64        `json:"id,omitempty"`
+	ID         uint         `json:"id,omitempty"`
 	Content    string       `json:"content,omitempty"`
 	CreateDate string       `json:"create_date,omitempty"`
 	User       UserResponse `json:"user,omitempty"`
@@ -39,14 +39,14 @@ type CommentResponse struct {
 func CommentAction(c *gin.Context) {
 
 	getUserId, _ := c.Get("user_id")
-	var userId int64
-	if v, ok := getUserId.(int); ok {
-		userId = int64(v)
+	var userId uint
+	if v, ok := getUserId.(uint); ok {
+		userId = v
 	}
 
 	actionType := c.Query("action_type")
 	videoIdStr := c.Query("video_id")
-	videoId, _ := strconv.ParseInt(videoIdStr, 10, 64)
+	videoId, _ := strconv.ParseUint(videoIdStr, 10, 10)
 
 	// Unsupported type
 	if actionType != "1" && actionType != "2" {
@@ -60,20 +60,20 @@ func CommentAction(c *gin.Context) {
 
 	if actionType == "1" { // post
 		text := c.Query("comment_text")
-		PostComment(c, userId, text, videoId)
+		PostComment(c, userId, text, uint(videoId))
 	} else if actionType == "2" { //delete
 		commentIdStr := c.Query("comment_id")
-		commentId, _ := strconv.ParseInt(commentIdStr, 10, 64)
-		DeleteComment(c, videoId, commentId)
+		commentId, _ := strconv.ParseInt(commentIdStr, 10, 10)
+		DeleteComment(c, uint(videoId), uint(commentId))
 	}
 
 }
 
-func PostComment(c *gin.Context, userId int64, text string, videoId int64) {
+func PostComment(c *gin.Context, userId uint, text string, videoId uint) {
 
 	newComment := model.Comment{
 		VideoId: videoId,
-		UserId:  int64(userId),
+		UserId:  userId,
 		Content: text,
 	}
 
@@ -87,8 +87,9 @@ func PostComment(c *gin.Context, userId int64, text string, videoId int64) {
 		return nil
 	})
 	getUser, err2 := service.GetUser(userId)
+	videoAuthor, err3 := service.GetVideoAuthor(uint(videoId))
 
-	if err1 != nil || err2 != nil {
+	if err1 != nil || err2 != nil || err3 != nil {
 		c.JSON(http.StatusOK, common.Response{
 			StatusCode: 403,
 			StatusMsg:  "Failed to post comment",
@@ -103,21 +104,21 @@ func PostComment(c *gin.Context, userId int64, text string, videoId int64) {
 			StatusMsg:  "post the comment successfully",
 		},
 		Comment: CommentResponse{
-			ID:         int64(newComment.ID),
+			ID:         newComment.ID,
 			Content:    newComment.Content,
 			CreateDate: newComment.CreatedAt.Format("01-02"),
 			User: UserResponse{
-				ID:            int64(getUser.ID),
+				ID:            getUser.ID,
 				Name:          getUser.Name,
 				FollowCount:   getUser.FollowCount,
 				FollowerCount: getUser.FollowerCount,
-				IsFollow:      false, // 需判断当前用户是否关注了视频作者，待其他servic完善后此处再完善
+				IsFollow:      service.IsFollowing(userId, videoAuthor),
 			},
 		},
 	})
 }
 
-func DeleteComment(c *gin.Context, videoId int64, commentId int64) {
+func DeleteComment(c *gin.Context, videoId uint, commentId uint) {
 
 	err := dao.SqlSession.Transaction(func(db *gorm.DB) error {
 		if err := service.DeleteComment(commentId); err != nil {
@@ -146,8 +147,15 @@ func DeleteComment(c *gin.Context, videoId int64, commentId int64) {
 
 func CommentList(c *gin.Context) {
 
-	videoId := c.Query("video_id")
-	commentList, err := service.GetCommentList(videoId)
+	getUserId, _ := c.Get("user_id")
+	var userId uint
+	if v, ok := getUserId.(uint); ok {
+		userId = v
+	}
+
+	videoIdStr := c.Query("video_id")
+	videoId, _ := strconv.ParseUint(videoIdStr, 10, 10)
+	commentList, err := service.GetCommentList(uint(videoId))
 
 	if err != nil {
 		c.JSON(http.StatusOK, common.Response{
@@ -160,8 +168,9 @@ func CommentList(c *gin.Context) {
 
 	var responseCommentList []CommentResponse
 	for i := 0; i < len(commentList); i++ {
-		getUser, err := service.GetUser(commentList[i].UserId)
-		if err != nil {
+		getUser, err1 := service.GetUser(commentList[i].UserId)
+
+		if err1 != nil {
 			c.JSON(http.StatusOK, common.Response{
 				StatusCode: 403,
 				StatusMsg:  "Failed to get commentList.",
@@ -170,15 +179,15 @@ func CommentList(c *gin.Context) {
 			return
 		}
 		responseCommentList[i] = CommentResponse{
-			ID:         int64(commentList[i].ID),
+			ID:         commentList[i].ID,
 			Content:    commentList[i].Content,
 			CreateDate: commentList[i].CreatedAt.Format("01-02"),
 			User: UserResponse{
-				ID:            int64(getUser.ID),
+				ID:            getUser.ID,
 				Name:          getUser.Name,
 				FollowCount:   getUser.FollowCount,
 				FollowerCount: getUser.FollowerCount,
-				IsFollow:      false, // 需判断当前用户是否关注了视频作者，待其他service完善后此处再完善
+				IsFollow:      service.IsFollowing(userId, commentList[i].ID),
 			},
 		}
 	}

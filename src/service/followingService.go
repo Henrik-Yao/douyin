@@ -4,6 +4,7 @@ import (
 	"douyin/src/dao"
 	"douyin/src/model"
 	"fmt"
+
 	"github.com/jinzhu/gorm"
 )
 
@@ -22,7 +23,7 @@ var followings string = "followings"
 //用户表
 
 // 判断HostId是否关注GuestId
-func IsFollowing(HostId int32, GuestId int32) bool {
+func IsFollowing(HostId uint, GuestId uint) bool {
 	var relationExist = &model.Following{}
 	if err := dao.SqlSession.Model(&model.Following{}).Where("host_id=? AND guest_id=?", HostId, GuestId).First(&relationExist).Error; gorm.IsRecordNotFoundError(err) {
 		//关注不存在

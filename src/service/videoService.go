@@ -4,7 +4,9 @@ import (
 	"douyin/src/dao"
 	"douyin/src/model"
 	"fmt"
+	"time"
 
+	"github.com/jinzhu/gorm"
 )
 
 const videoNum = 2 //feed每次返回的视频数量
@@ -24,7 +26,7 @@ func FeedGet(lastTime int64) ([]model.Video, error) {
 }
 
 // add comment_count
-func AddCommentCount(videoId int64) error {
+func AddCommentCount(videoId uint) error {
 
 	if err := dao.SqlSession.Table("videos").Where("id = ?", videoId).Update("comment_count", gorm.Expr("comment_count + 1")).Error; err != nil {
 		return err
@@ -33,10 +35,19 @@ func AddCommentCount(videoId int64) error {
 }
 
 // reduce comment_count
-func ReduceCommentCount(videoId int64) error {
+func ReduceCommentCount(videoId uint) error {
 
 	if err := dao.SqlSession.Table("videos").Where("id = ?", videoId).Update("comment_count", gorm.Expr("comment_count - 1")).Error; err != nil {
 		return err
 	}
 	return nil
+}
+
+// get video author
+func GetVideoAuthor(videoId uint) (uint, error) {
+	var video model.Video
+	if err := dao.SqlSession.Table("videos").Where("id = ?", videoId).Find(&video).Error; err != nil {
+		return video.ID, err
+	}
+	return video.ID, nil
 }
