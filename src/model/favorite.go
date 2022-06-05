@@ -4,7 +4,7 @@ import "github.com/jinzhu/gorm"
 
 type Favorite struct {
 	gorm.Model
-	UserId  int32 `json:"user_id"`
-	VideoId int32 `json:"video_id"`
-	State   int32
+	UserId  uint `json:"user_id"`
+	VideoId uint `json:"video_id"`
+	State   uint
 }
