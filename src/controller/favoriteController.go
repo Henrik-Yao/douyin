@@ -9,11 +9,11 @@ import (
 	"net/http"
 )
 
-type FavoriteRequest struct{
-	Token string `json:"token"`
-	VideoId uint `json:"video_id"`
-	ActionType uint `json:"action_type"`
-}
+// type FavoriteRequest struct{
+// 	Token string `json:"token"`
+// 	VideoId uint `json:"video_id"`
+// 	ActionType uint `json:"action_type"`
+// }
 
 type FavoriteAuthor struct {//从user中获取,getUser函数
 		Id            uint  `json:"id"`
@@ -51,16 +51,18 @@ func Favorite(c *gin.Context) {
 		userId = v
 	}
 	//参数获取
-	videoId := favoritereq.VideoId
-	actionType := favoritereq.ActionType
-	fmt.Println(userId)
-	fmt.Println(videoId)
-	fmt.Println(actionType)
+	actionTypeStr := c.Query("action_type")
+	actionType, _ := strconv.ParseUint(actionTypeStr, 10, 10)
+	videoIdStr := c.Query("video_id")
+	videoId, _ := strconv.ParseUint(videoIdStr, 10, 10)
+	// fmt.Println(userId)
+	// fmt.Println(videoId)
+	// fmt.Println(actionType)
 
 	fmt.Println("token通过验证")
 
 	//函数调用及响应
-	err := service.FavoriteAction(userId,videoId,actionType)
+	err := service.FavoriteAction(userId,uint(videoId),uint(actionType))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, common.Response{
 			StatusCode: 1,
