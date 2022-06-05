@@ -8,7 +8,7 @@ import (
 
 func GetCommentList(videoId string) ([]model.Comment, error) {
 	var commentList []model.Comment
-	if err := dao.SqlSession.Table("comment").Where("video_id=? and deleted_at is null", videoId).Find(&commentList).Error; err != nil { //找不到记录
+	if err := dao.SqlSession.Table("comment").Where("video_id=? and deleted_at is null", videoId).Find(&commentList).Error; err != nil {
 		return commentList, err
 	}
 	return commentList, nil
