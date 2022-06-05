@@ -33,6 +33,8 @@ type UserResponse struct {
 	User *model.User `json:"user"`
 }
 
+//UserInfo
+
 func UserInfo(c *gin.Context) {
 	p := NewProxyUserInfo(c)
 	//根据user_id查询

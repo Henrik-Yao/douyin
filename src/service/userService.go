@@ -34,6 +34,15 @@ type QueryUserLoginFlow struct {
 	token  string
 }
 
+type PostUserLoginFlow struct {
+	username string
+	password string
+
+	data   *UserLoginResponse
+	userid uint
+	token  string
+}
+
 // UserLogin 登录功能，查询用户是否存在，并返回token和id
 func UserLogin(username, password string) (*UserLoginResponse, error) {
 	return NewQueryUserLoginFlow(username, password).Do()
@@ -100,15 +109,6 @@ func (q *QueryUserLoginFlow) packData() error {
 		Token:  q.token,
 	}
 	return nil
-}
-
-type PostUserLoginFlow struct {
-	username string
-	password string
-
-	data   *UserLoginResponse
-	userid uint
-	token  string
 }
 
 //UserRegister 注册用户并得到token和id

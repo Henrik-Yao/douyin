@@ -68,7 +68,7 @@ func (u *UserInfoDAO) IsUserExistById(id int64) bool {
 	return true
 }
 
-//userLogin
+//userLogin 用户相关sql
 
 type UserLoginDAO struct {
 }
@@ -93,7 +93,7 @@ func (u *UserLoginDAO) QueryUserLogin(username, password string, login *User) er
 	originPassword := password // 记录一下原始密码(用户登录的密码)
 	// 新生成加密密码用于和查询到的密码比较
 	newPassword := EncryptPassword([]byte(originPassword))
-	dao.SqlSession.Where("username=? and password=?", username, newPassword).First(login)
+	dao.SqlSession.Where("name=? and password=?", username, newPassword).First(login)
 	if login.Model.ID == 0 {
 		return common.ErrorFullPossibility
 	}
@@ -103,7 +103,7 @@ func (u *UserLoginDAO) QueryUserLogin(username, password string, login *User) er
 // IsUserExistByUsername 根据用户名检查用户是否存在
 func (u *UserLoginDAO) IsUserExistByUsername(username string) bool { //是否有比较把返回值类型改为error
 	var userLogin User
-	dao.SqlSession.Where("username=?", username).First(&userLogin)
+	dao.SqlSession.Where("name=?", username).First(&userLogin)
 	if userLogin.Model.ID == 0 {
 		return false
 	}
