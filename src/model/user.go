@@ -93,7 +93,7 @@ func (u *UserLoginDAO) QueryUserLogin(username, password string, login *User) er
 	originPassword := password // 记录一下原始密码(用户登录的密码)
 	// 新生成加密密码用于和查询到的密码比较
 	newPassword := EncryptPassword([]byte(originPassword))
-	dao.SqlSession.Where("username=? and password=?", username, newPassword).First(login)
+	dao.SqlSession.Where("name=? and password=?", username, newPassword).First(login)
 	if login.Model.ID == 0 {
 		return common.ErrorFullPossibility
 	}
