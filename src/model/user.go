@@ -103,7 +103,7 @@ func (u *UserLoginDAO) QueryUserLogin(username, password string, login *User) er
 // IsUserExistByUsername 根据用户名检查用户是否存在
 func (u *UserLoginDAO) IsUserExistByUsername(username string) bool { //是否有比较把返回值类型改为error
 	var userLogin User
-	dao.SqlSession.Where("username=?", username).First(&userLogin)
+	dao.SqlSession.Where("name=?", username).First(&userLogin)
 	if userLogin.Model.ID == 0 {
 		return false
 	}
