@@ -20,7 +20,7 @@ type FollowerListResponse struct {
 }
 
 // 关注/取消关注操作
-func FollowAction(c *gin.Context) {
+func RelationAction(c *gin.Context) {
 	//1.取数据
 	user_id_, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
 	to_user_id_, _ := strconv.ParseInt(c.Query("to_user_id"), 10, 64)

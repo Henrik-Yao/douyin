@@ -46,14 +46,17 @@ func InitRouter() *gin.Engine {
 			userGroup.POST("/user/login/", middleware.JwtMiddleware(), controller.UserLoginHandler)
 			userGroup.POST("/user/register/", middleware.JwtMiddleware(), controller.UserRegisterHandler)
 		}
+
 		// publish路由组
 		publishGroup := douyinGroup.Group("/publish")
 		{
 			publishGroup.POST("/action", controller.Publish) //提交文件，不用中间件鉴权
 			publishGroup.GET("/list", middleware.JwtMiddleware(), controller.PublishList)
+
 		}
 		// feed只有一层，不需要组了
 		douyinGroup.GET("/feed/", controller.Feed)
+
 		favoriteGroup := douyinGroup.Group("favorite")
 		{
 			favoriteGroup.POST("/action", middleware.JwtMiddleware(), controller.Favorite)
@@ -70,7 +73,7 @@ func InitRouter() *gin.Engine {
 		// relation路由组
 		relationGroup := douyinGroup.Group("relation")
 		{
-			relationGroup.POST("/action", controller.FollowAction)
+			relationGroup.POST("/action", controller.RelationAction)
 			relationGroup.GET("/follow/list", controller.FollowList)
 			relationGroup.GET("/follower/list", controller.FollowerList)
 		}
