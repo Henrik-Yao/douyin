@@ -14,8 +14,8 @@ func InitRouter() *gin.Engine {
 		// user路由组
 		userGroup := douyinGroup.Group("/user")
 		{
-			userGroup.POST("/test", middleware.JwtMiddleware(), controller.CreateUser)
-			userGroup.GET("/", middleware.JwtMiddleware(), controller.UserInfo)
+
+			userGroup.GET("/user/", middleware.JwtMiddleware(), controller.UserInfo)
 			userGroup.POST("/user/login/", middleware.JwtMiddleware(), controller.UserLogin)
 			userGroup.POST("/user/register/", middleware.JwtMiddleware(), controller.UserRegister)
 		}
@@ -23,11 +23,12 @@ func InitRouter() *gin.Engine {
 		// publish路由组
 		publishGroup := douyinGroup.Group("/publish")
 		{
-			publishGroup.POST("/action", controller.Publish) //提交文件，不用中间件鉴权
+			publishGroup.POST("/action", middleware.JwtMiddleware(), controller.Publish) //提交文件，不用中间件鉴权
 			publishGroup.GET("/list", middleware.JwtMiddleware(), controller.PublishList)
 
 		}
-		// feed只有一层，不需要组了
+
+		// feed
 		douyinGroup.GET("/feed/", controller.Feed)
 
 		favoriteGroup := douyinGroup.Group("favorite")
@@ -35,14 +36,14 @@ func InitRouter() *gin.Engine {
 			favoriteGroup.POST("/action", middleware.JwtMiddleware(), controller.Favorite)
 			favoriteGroup.GET("/list", middleware.JwtMiddleware(), controller.FavoriteList)
 		}
-		//
-		//// comment路由组
+
+		// comment路由组
 		commentGroup := douyinGroup.Group("/comment")
 		{
 			commentGroup.POST("/action", middleware.JwtMiddleware(), controller.CommentAction)
 			commentGroup.GET("/list", middleware.JwtMiddleware(), controller.CommentList)
 		}
-		//
+
 		// relation路由组
 		relationGroup := douyinGroup.Group("relation")
 		{

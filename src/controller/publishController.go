@@ -1,13 +1,9 @@
 package controller
 
-/*
-说明：将token.go中的BindJSON()换成了ShouldBind().
-*/
-
 import (
 	"douyin/src/common"
-	"douyin/src/dao"
 	"douyin/src/model"
+	"douyin/src/service"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -58,6 +54,7 @@ func Publish(c *gin.Context) {
 		})
 		return
 	}
+
 	//3.返回至前端页面的展示信息
 	filename := filepath.Base(data.Filename)
 	finalName := fmt.Sprintf("%d_%s", userId, filename)
@@ -88,29 +85,43 @@ func Publish(c *gin.Context) {
 		CommentCount:  0,
 		Title:         title,
 	}
-	dao.SqlSession.Table("videos").Create(&video)
+	service.CreateVideo(&video)
 }
 
 //////获取列表的方法
 func PublishList(c *gin.Context) {
 	//1.中间件鉴权token
-	//2.查询当前id用户的所有视频，返回页面
-	getUserId := c.Query("user_id")
-	userId, _ := strconv.Atoi(getUserId)
+	getHostId, _ := c.Get("user_id")
+	var HostId uint
+	if v, ok := getHostId.(uint); ok {
+		HostId = v
+	}
+	//2.查询要查看用户的id的所有视频，返回页面
+	getGuestId := c.Query("user_id")
+	id, _ := strconv.Atoi(getGuestId)
+	GuestId := uint(id)
 
 	//根据用户id查找用户
-	var getUser model.User
-	dao.SqlSession.Table("users").Where("id=?", userId).First(&getUser)
+	getUser, err := service.GetUser(GuestId)
+	if err != nil {
+		c.JSON(http.StatusOK, common.Response{
+			StatusCode: 403,
+			StatusMsg:  "找不到作者！",
+		})
+		c.Abort()
+		return
+	}
+
 	returnAuthor := ReturnAuthor{
-		AuthorId:      uint(userId),
+		AuthorId:      GuestId,
 		Name:          getUser.Name,
 		FollowCount:   getUser.FollowCount,
 		FollowerCount: getUser.FollowerCount,
-		IsFollow:      false, //需要调用其他人接口拿到
+		IsFollow:      service.IsFollowing(HostId, GuestId), //需要调用其他人接口拿到
 	}
 	//根据用户id查找 所有相关视频信息
 	var videoList []model.Video
-	dao.SqlSession.Table("videos").Where("author_id=?", userId).Find(&videoList)
+	videoList = service.GetVideoList(GuestId)
 	if len(videoList) == 0 {
 		c.JSON(http.StatusOK, VideoListResponse{
 			Response: common.Response{
@@ -124,13 +135,13 @@ func PublishList(c *gin.Context) {
 		var returnVideoList []ReturnVideo
 		for i := 0; i < len(videoList); i++ {
 			returnVideo := ReturnVideo{
-				VideoId:       uint(videoList[i].ID),
+				VideoId:       videoList[i].ID,
 				Author:        returnAuthor,
 				PlayUrl:       videoList[i].PlayUrl, //
 				CoverUrl:      videoList[i].CoverUrl,
 				FavoriteCount: videoList[i].FavoriteCount,
 				CommentCount:  videoList[i].CommentCount,
-				IsFavorite:    false,
+				IsFavorite:    service.CheckFavorite(HostId, videoList[i].ID),
 				Title:         videoList[i].Title,
 			}
 			returnVideoList = append(returnVideoList, returnVideo)
