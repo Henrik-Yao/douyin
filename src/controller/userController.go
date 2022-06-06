@@ -6,69 +6,44 @@ import (
 	"douyin/src/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strconv"
 )
 
-//这里和commentController中的UserResponse重名，所以加个1避免重名
 
-type UserResponse1 struct {
+
+type UserRegisterResponse struct {
+
 	common.Response
-	User *model.User `json:"user"`
+	service.UserResponse
 }
 
-func UserInfo(c *gin.Context) {
-	p := NewProxyUserInfo(c)
-	//根据user_id查询
-	rawId := c.Query("user_id")
-	err := p.DoQueryUserInfoByUserId(rawId)
-	//未发生错误，则就不用再使用token字段了
-	if err == nil {
+func UserRegister(c *gin.Context) {
+	//1.参数提取
+	username := c.Query("username")
+	password := c.Query("password")
+
+	//2.service层处理
+	registerResponse, err := service.UserRegister(username, password)
+
+	//3.返回响应
+	if err != nil {
+		c.JSON(http.StatusOK, UserRegisterResponse{
+			Response: common.Response{
+				StatusCode: 1,
+				StatusMsg:  err.Error(),
+			},
+		})
 		return
 	}
-
-}
-
-type ProxyUserInfo struct {
-	c *gin.Context
-}
-
-func NewProxyUserInfo(c *gin.Context) *ProxyUserInfo {
-	return &ProxyUserInfo{c: c}
-}
-
-func (p *ProxyUserInfo) DoQueryUserInfoByUserId(rawId string) error {
-	userId, err := strconv.ParseInt(rawId, 10, 64)
-	if err != nil {
-		return err
-	}
-	//由于得到userinfo不需要组装model层的数据，所以直接调用model层的接口
-	userinfoDAO := model.NewUserInfoDAO()
-
-	var userInfo model.User
-	err = userinfoDAO.QueryUserInfoById(userId, &userInfo)
-	if err != nil {
-		return err
-	}
-	p.UserInfoOk(&userInfo)
-	return nil
-}
-
-func (p *ProxyUserInfo) UserInfoError(msg string) {
-	p.c.JSON(http.StatusOK, UserResponse1{
-		Response: common.Response{StatusCode: 1, StatusMsg: msg},
+	c.JSON(http.StatusOK, UserRegisterResponse{
+		Response:     common.Response{StatusCode: 0},
+		UserResponse: registerResponse,
 	})
-}
-
-func (p *ProxyUserInfo) UserInfoOk(user *model.User) {
-	p.c.JSON(http.StatusOK, UserResponse1{
-		Response: common.Response{StatusCode: 0},
-		User:     user,
-	})
+	return
 }
 
 type UserLoginResponse struct {
 	common.Response
-	*service.UserLoginResponse
+	service.UserResponse
 }
 
 func UserLogin(c *gin.Context) {
@@ -80,31 +55,6 @@ func UserLogin(c *gin.Context) {
 	//用户不存在返回对应的错误
 	if err != nil {
 		c.JSON(http.StatusOK, UserLoginResponse{
-			Response: common.Response{StatusCode: 1, StatusMsg: err.Error()},
-		})
-		return
-	}
-
-	//用户存在，返回相应的id和token
-	c.JSON(http.StatusOK, UserLoginResponse{
-		Response:          common.Response{StatusCode: 0},
-		UserLoginResponse: userLoginResponse,
-	})
-}
-
-type UserRegisterResponse struct {
-	common.Response
-	*service.UserLoginResponse
-}
-
-func UserRegister(c *gin.Context) {
-	username := c.Query("username")
-	password := c.Query("password")
-
-	registerResponse, err := service.UserRegister(username, password)
-
-	if err != nil {
-		c.JSON(http.StatusOK, UserRegisterResponse{
 			Response: common.Response{
 				StatusCode: 1,
 				StatusMsg:  err.Error(),
@@ -112,8 +62,40 @@ func UserRegister(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(http.StatusOK, UserRegisterResponse{
-		Response:          common.Response{StatusCode: 0},
-		UserLoginResponse: registerResponse,
+
+	//用户存在，返回相应的id和token
+	c.JSON(http.StatusOK, UserLoginResponse{
+		Response:     common.Response{StatusCode: 0},
+		UserResponse: userLoginResponse,
 	})
+}
+
+type UserInfoResponse struct {
+	common.Response
+	service.UserInfoQueryResponse
+}
+
+func UserInfo(c *gin.Context) {
+
+	//根据user_id查询
+	rawId := c.Query("user_id")
+	userInfoResponse, err := service.UserInfo(rawId)
+
+	//用户不存在返回对应的错误
+	if err != nil {
+		c.JSON(http.StatusOK, UserInfoResponse{
+			Response: common.Response{
+				StatusCode: 1,
+				StatusMsg:  err.Error(),
+			},
+		})
+		return
+	}
+
+	//用户存在，返回相应的id和token
+	c.JSON(http.StatusOK, UserInfoResponse{
+		Response:              common.Response{StatusCode: 0},
+		UserInfoQueryResponse: userInfoResponse,
+	})
+
 }

@@ -14,6 +14,7 @@ func InitRouter() *gin.Engine {
 		// user路由组
 		userGroup := douyinGroup.Group("/user")
 		{
+
 			userGroup.GET("/user/", middleware.JwtMiddleware(), controller.UserInfo)
 			userGroup.POST("/user/login/", middleware.JwtMiddleware(), controller.UserLogin)
 			userGroup.POST("/user/register/", middleware.JwtMiddleware(), controller.UserRegister)

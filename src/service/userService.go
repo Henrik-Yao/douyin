@@ -5,8 +5,34 @@ import (
 	"douyin/src/dao"
 	"douyin/src/middleware"
 	"douyin/src/model"
+	"fmt"
+	"github.com/jinzhu/gorm"
+	"strconv"
 )
 
+const (
+	MaxUsernameLength = 32 //用户名最大长度
+	MaxPasswordLength = 32 //密码最大长度
+	MinPasswordLength = 6  //密码最小长度
+)
+
+// UserResponse 用户注册登录返回的结构体
+type UserResponse struct {
+	UserId uint   `json:"user_id"`
+	Token  string `json:"token"`
+}
+
+// UserInfoQueryResponse 用户信息返回的结构体
+type UserInfoQueryResponse struct {
+	UserId        uint   `json:"user_id"`
+	UserName      string `json:"name"`
+	FollowCount   uint   `json:"follow_count"`
+	FollowerCount uint   `json:"follower_count"`
+}
+
+//增
+
+// CreateUser 新建用户
 func CreateUser(user *model.User) (err error) {
 	if err = dao.SqlSession.Create(user).Error; err != nil {
 		return err
@@ -14,187 +40,177 @@ func CreateUser(user *model.User) (err error) {
 	return
 }
 
+func CreateRegisterUser(userName string, passWord string) (model.User, error) {
+	//1.Following数据模型准备
+	newUser := model.User{
+		Name:     userName,
+		Password: passWord,
+	}
+	//2.模型关联到数据库表users //可注释
+	dao.SqlSession.AutoMigrate(&model.User{})
+	//3.新建user
+	if IsUserExistByName(userName) {
+		//用户已存在
+		return newUser, common.ErrorUserExit
+	} else {
+		//用户不存在，新建用户
+		if err := dao.SqlSession.Model(&model.User{}).Create(&newUser).Error; err != nil {
+			//错误处理
+			fmt.Println(err)
+			return newUser, err
+		}
+	}
+	return newUser, nil
+}
+
+//查
+
+func IsUserExistByName(userName string) bool {
+
+	var userExist = &model.User{}
+	if err := dao.SqlSession.Model(&model.User{}).Where("name=?", userName).First(&userExist).Error; gorm.IsRecordNotFoundError(err) {
+		//关注不存在
+		return false
+	}
+	//关注存在
+	return true
+}
+
+func IsUserExist(userName string, password string, login *model.User) error {
+	if login == nil {
+		return common.ErrorNullPointer
+	}
+	dao.SqlSession.Where("name=? and password=?", userName, password).First(login)
+	if login.Model.ID == 0 {
+		return common.ErrorFullPossibility
+	}
+	return nil
+}
+
+// GetUser 根据用户id获取用户信息
 func GetUser(userId uint) (model.User, error) {
+	//1.数据模型准备
 	var user model.User
-	if err := dao.SqlSession.Table("users").Where("id = ?", userId).Find(&user).Error; err != nil {
+	//2.在users表中查对应user_id的user
+	if err := dao.SqlSession.Model(&model.User{}).Where("id = ?", userId).Find(&user).Error; err != nil {
 		return user, err
 	}
 	return user, nil
 }
 
-const (
-	MaxUsernameLength = 32 //用户名最大长度
-	MaxPasswordLength = 32 //密码最大长度
-	MinPasswordLength = 8  //密码最小长度
-)
-
-type UserLoginResponse struct {
-	UserId uint   `json:"user_id"`
-	Token  string `json:"token"`
-}
-
-type QueryUserLoginFlow struct {
-	username string
-	password string
-
-	data   *UserLoginResponse
-	userid uint
-	token  string
-}
-
-type PostUserLoginFlow struct {
-	username string
-	password string
-
-	data   *UserLoginResponse
-	userid uint
-	token  string
-}
-
-// UserLogin 登录功能，查询用户是否存在，并返回token和id
-func UserLogin(username, password string) (*UserLoginResponse, error) {
-	return NewQueryUserLoginFlow(username, password).Do()
-}
-
-func NewQueryUserLoginFlow(username, password string) *QueryUserLoginFlow {
-	return &QueryUserLoginFlow{username: username, password: password}
-}
-
-func (q *QueryUserLoginFlow) Do() (*UserLoginResponse, error) {
-	//对参数进行合法性验证
-	if err := q.checkNum(); err != nil {
-		return nil, err
+// GetUserById 根据用户id获取用户信息，用于userInfo
+func GetUserById(userId uint, user *model.User) error {
+	if user == nil {
+		return common.ErrorNullPointer
 	}
-	//准备好数据
-	if err := q.prepareData(); err != nil {
-		return nil, err
-	}
-	//打包最终数据
-	if err := q.packData(); err != nil {
-		return nil, err
-	}
-	return q.data, nil
+	dao.SqlSession.Where("id=?", userId).First(user)
+	return nil
+
 }
 
-func (q *QueryUserLoginFlow) checkNum() error {
-	if q.username == "" {
+// IsUserLegal 用户名和密码合法性检验
+func IsUserLegal(userName string, passWord string) error {
+	//1.用户名检验
+	if userName == "" {
 		return common.ErrorUserNameNull
 	}
-	if len(q.username) > MaxUsernameLength {
+	if len(userName) > MaxUsernameLength {
 		return common.ErrorUserNameExtend
 	}
-	if q.password == "" {
+	//2.密码检验
+	if passWord == "" {
 		return common.ErrorPasswordNull
 	}
-	if len(q.password) > MaxPasswordLength || len(q.password) < MinPasswordLength {
+	if len(passWord) > MaxPasswordLength || len(passWord) < MinPasswordLength {
 		return common.ErrorPasswordLength
 	}
 	return nil
 }
 
-func (q *QueryUserLoginFlow) prepareData() error {
-	userLoginDAO := model.NewUserLoginDao()
-	var login model.User
-	//准备好userid
-	err := userLoginDAO.QueryUserLogin(q.username, q.password, &login)
-	if err != nil {
-		return err
-	}
-	q.userid = login.Model.ID
+// UserRegister 用户注册
+func UserRegister(userName string, passWord string) (UserResponse, error) {
 
-	//准备颁发token
+	//0.数据准备
+	var userResponse = UserResponse{}
+
+	//1.合法性检验
+	err := IsUserLegal(userName, passWord)
+	if err != nil {
+		return userResponse, err
+	}
+
+	//2.新建用户
+	newUser, err := CreateRegisterUser(userName, passWord)
+	if err != nil {
+		return userResponse, err
+	}
+
+	//3.颁发token
+	token, err := middleware.CreateToken(newUser.ID, newUser.Name)
+	if err != nil {
+		return userResponse, err
+	}
+
+	userResponse = UserResponse{
+		UserId: newUser.ID,
+		Token:  token,
+	}
+	return userResponse, nil
+}
+
+// UserLogin 用户登录
+func UserLogin(userName string, passWord string) (UserResponse, error) {
+
+	//0.数据准备
+	var userResponse = UserResponse{}
+
+	//1.合法性检验
+	err := IsUserLegal(userName, passWord)
+	if err != nil {
+		return userResponse, err
+	}
+
+	//2.检查用户是否存在
+	var login model.User
+	err = IsUserExist(userName, passWord, &login)
+	if err != nil {
+		return userResponse, err
+	}
+
+	//3.颁发token
 	token, err := middleware.CreateToken(login.Model.ID, login.Name)
 	if err != nil {
-		return err
+		return userResponse, err
 	}
-	q.token = token
-	return nil
+
+	userResponse = UserResponse{
+		UserId: login.Model.ID,
+		Token:  token,
+	}
+	return userResponse, nil
 }
 
-func (q *QueryUserLoginFlow) packData() error {
-	q.data = &UserLoginResponse{
-		UserId: q.userid,
-		Token:  q.token,
-	}
-	return nil
-}
-
-//UserRegister 注册用户并得到token和id
-func UserRegister(username, password string) (*UserLoginResponse, error) {
-	return NewPostUserLoginFlow(username, password).Do()
-}
-
-func NewPostUserLoginFlow(username, password string) *PostUserLoginFlow {
-	//密码加密
-	newPassword := model.EncryptPassword([]byte(password))
-	return &PostUserLoginFlow{username: username, password: newPassword}
-}
-
-func (q *PostUserLoginFlow) Do() (*UserLoginResponse, error) {
-	//对参数进行合法性验证
-	if err := q.checkNum(); err != nil {
-		return nil, err
-	}
-
-	//更新数据到数据库，也就是注册功能
-	if err := q.updateData(); err != nil {
-		return nil, err
-	}
-
-	//打包response
-	if err := q.packResponse(); err != nil {
-		return nil, err
-	}
-	return q.data, nil
-}
-
-func (q *PostUserLoginFlow) checkNum() error {
-	if q.username == "" {
-		return common.ErrorUserNameNull
-	}
-	if len(q.username) > MaxUsernameLength {
-		return common.ErrorUserNameExtend
-	}
-	if q.password == "" {
-		return common.ErrorPasswordNull
-	}
-	if len(q.password) > MaxPasswordLength || len(q.password) < MinPasswordLength {
-		return common.ErrorPasswordLength
-	}
-	return nil
-}
-
-func (q *PostUserLoginFlow) updateData() error {
-
-	user := model.User{Name: q.username, Password: q.password}
-	//判断用户名是否已经存在
-	userLoginDAO := model.NewUserLoginDao()
-	if userLoginDAO.IsUserExistByUsername(q.username) {
-		return common.ErrorUserExit
-	}
-
-	//更新操作，由于传入的是指针，所以插入的数据内容也是清楚的
-	userInfoDAO := model.NewUserInfoDAO()
-	err := userInfoDAO.AddUserInfo(&user)
+// UserInfo 用户信息
+func UserInfo(rawId string) (UserInfoQueryResponse, error) {
+	//0.数据准备
+	var userInfoQueryResponse = UserInfoQueryResponse{}
+	userId, err := strconv.ParseUint(rawId, 10, 64)
 	if err != nil {
-		return err
+		return userInfoQueryResponse, err
 	}
 
-	//颁发token
-	token, err := middleware.CreateToken(user.ID, user.Name)
+	//1.获取用户信息
+	var user model.User
+	err = GetUserById(uint(userId), &user)
 	if err != nil {
-		return err
+		return userInfoQueryResponse, err
 	}
-	q.token = token
-	q.userid = user.Model.ID
-	return nil
 
-}
-
-func (q *PostUserLoginFlow) packResponse() error {
-	q.data = &UserLoginResponse{
-		UserId: q.userid,
-		Token:  q.token,
+	userInfoQueryResponse = UserInfoQueryResponse{
+		UserId:        user.Model.ID,
+		UserName:      user.Name,
+		FollowCount:   user.FollowCount,
+		FollowerCount: user.FollowerCount,
 	}
-	return nil
+	return userInfoQueryResponse, nil
 }
