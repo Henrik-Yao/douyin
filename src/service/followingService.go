@@ -10,10 +10,10 @@ import (
 
 //用于取数据，关注者/被关注者信息
 type Follower struct {
-	Id            int64  `json:"id"`
+	Id            uint   `json:"id"`
 	Name          string `json:"name"`
-	FollowCount   int64  `json:"follow_count"`
-	FollowerCount int64  `json:"follower_count"`
+	FollowCount   uint   `json:"follow_count"`
+	FollowerCount uint   `json:"follower_count"`
 	IsFollow      bool   `json:"is_follow"`
 }
 
@@ -34,19 +34,19 @@ func IsFollowing(HostId uint, GuestId uint) bool {
 }
 
 // 增加HostId的关注数（Host_id 的 follow_count+1）
-func IncreaseFollowCount(HostId int32) (err error) {
+func IncreaseFollowCount(HostId uint) (err error) {
 	dao.SqlSession.Model(&model.User{}).Where("id=?", HostId).Update("follow_count", gorm.Expr("follow_count+?", 1))
 	return nil
 }
 
 // 增加HostId的关注数（Host_id 的 follow_count-1）
-func DecreaseFollowCount(HostId int32) (err error) {
+func DecreaseFollowCount(HostId uint) (err error) {
 	dao.SqlSession.Model(&model.User{}).Where("id=?", HostId).Update("follow_count", gorm.Expr("follow_count-?", 1))
 	return nil
 }
 
 // 创建关注
-func CreateFollowing(HostId int32, GuestId int32) (err error) {
+func CreateFollowing(HostId uint, GuestId uint) (err error) {
 
 	//1.Following数据模型准备
 	newFollowing := model.Following{
@@ -63,7 +63,7 @@ func CreateFollowing(HostId int32, GuestId int32) (err error) {
 }
 
 // 删除关注
-func DeleteFollowing(HostId int32, GuestId int32) (err error) {
+func DeleteFollowing(HostId uint, GuestId uint) (err error) {
 	//1.Following数据模型准备
 	newFollowing := model.Following{
 		HostId:  HostId,
@@ -80,7 +80,7 @@ func DeleteFollowing(HostId int32, GuestId int32) (err error) {
 }
 
 //关注操作
-func FollowAction(HostId int32, GuestId int32, actionType int32) (err error) {
+func FollowAction(HostId uint, GuestId uint, actionType uint) (err error) {
 	//创建关注操作
 	if actionType == 1 {
 		//判断关注是否存在
@@ -120,7 +120,7 @@ func FollowAction(HostId int32, GuestId int32, actionType int32) (err error) {
 }
 
 //获取关注表
-func FollowingList(HostId int32) ([]Follower, error) {
+func FollowingList(HostId uint) ([]Follower, error) {
 	//1.followlist数据模型准备
 	var followinglist []Follower
 	//var test []model.User
@@ -134,7 +134,7 @@ func FollowingList(HostId int32) ([]Follower, error) {
 
 	//3.修改查询结果中的is_follow属性
 	for i, m := range followinglist {
-		if IsFollowing(int32(m.Id), HostId) {
+		if IsFollowing(uint(m.Id), HostId) {
 			//没有发生错误：找到
 			fmt.Println("找到")
 			followinglist[i].IsFollow = true
