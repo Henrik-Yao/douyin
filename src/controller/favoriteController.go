@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 // type FavoriteRequest struct{
@@ -42,8 +43,6 @@ type FavoriteListResponse struct {
 //点赞视频方法
 func Favorite(c *gin.Context) {
 	//参数绑定
-	var favoritereq FavoriteRequest
-	c.BindJSON(&favoritereq)
 	//user_id获取
 	getUserId, _ := c.Get("user_id")
 	var userId uint
