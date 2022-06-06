@@ -19,7 +19,7 @@ type FollowerListResponse struct {
 	UserList []service.Follower `json:"user_list"`
 }
 
-// 关注/取消关注操作
+// RelationAction 关注/取消关注操作
 func RelationAction(c *gin.Context) {
 	//1.取数据
 	getUserId, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)

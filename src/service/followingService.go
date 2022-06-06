@@ -8,7 +8,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-//用于取数据，关注者/被关注者信息
+// Follower 用于取数据，关注者/被关注者信息
 type Follower struct {
 	Id            uint   `json:"id"`
 	Name          string `json:"name"`
@@ -18,11 +18,11 @@ type Follower struct {
 }
 
 //关注表
-var followings string = "followings"
+var followings = "followings"
 
 //用户表
 
-// 判断HostId是否关注GuestId
+// IsFollowing 判断HostId是否关注GuestId
 func IsFollowing(HostId uint, GuestId uint) bool {
 	var relationExist = &model.Following{}
 	if err := dao.SqlSession.Model(&model.Following{}).Where("host_id=? AND guest_id=?", HostId, GuestId).First(&relationExist).Error; gorm.IsRecordNotFoundError(err) {
@@ -33,19 +33,19 @@ func IsFollowing(HostId uint, GuestId uint) bool {
 	return true
 }
 
-// 增加HostId的关注数（Host_id 的 follow_count+1）
+// IncreaseFollowCount 增加HostId的关注数（Host_id 的 follow_count+1）
 func IncreaseFollowCount(HostId uint) (err error) {
 	dao.SqlSession.Model(&model.User{}).Where("id=?", HostId).Update("follow_count", gorm.Expr("follow_count+?", 1))
 	return nil
 }
 
-// 增加HostId的关注数（Host_id 的 follow_count-1）
+// DecreaseFollowCount 增加HostId的关注数（Host_id 的 follow_count-1）
 func DecreaseFollowCount(HostId uint) (err error) {
 	dao.SqlSession.Model(&model.User{}).Where("id=?", HostId).Update("follow_count", gorm.Expr("follow_count-?", 1))
 	return nil
 }
 
-// 创建关注
+// CreateFollowing 创建关注
 func CreateFollowing(HostId uint, GuestId uint) (err error) {
 
 	//1.Following数据模型准备
@@ -62,7 +62,7 @@ func CreateFollowing(HostId uint, GuestId uint) (err error) {
 	return nil
 }
 
-// 删除关注
+// DeleteFollowing 删除关注
 func DeleteFollowing(HostId uint, GuestId uint) (err error) {
 	//1.Following数据模型准备
 	newFollowing := model.Following{
@@ -79,7 +79,7 @@ func DeleteFollowing(HostId uint, GuestId uint) (err error) {
 	return nil
 }
 
-//关注操作
+// FollowAction 关注操作
 func FollowAction(HostId uint, GuestId uint, actionType uint) (err error) {
 	//创建关注操作
 	if actionType == 1 {
@@ -119,32 +119,32 @@ func FollowAction(HostId uint, GuestId uint, actionType uint) (err error) {
 	return nil
 }
 
-//获取关注表
+// FollowingList 获取关注表
 func FollowingList(HostId uint) ([]Follower, error) {
-	//1.followlist数据模型准备
-	var followinglist []Follower
+	//1.followingList数据模型准备
+	var followingList []Follower
 	//var test []model.User
 
 	//2.查HostId的关注表
 	if err := dao.SqlSession.Model(&model.User{}).Joins("left join "+followings+" on "+users+".id = "+followings+".guest_id").
-		Where(followings+".host_id=?", HostId).Scan(&followinglist).Error; err != nil {
-		return followinglist, nil
+		Where(followings+".host_id=?", HostId).Scan(&followingList).Error; err != nil {
+		return followingList, nil
 	}
-	fmt.Println(followinglist)
+	fmt.Println(followingList)
 
 	//3.修改查询结果中的is_follow属性
-	for i, m := range followinglist {
-		if IsFollowing(uint(m.Id), HostId) {
+	for i, m := range followingList {
+		if IsFollowing(m.Id, HostId) {
 			//没有发生错误：找到
 			fmt.Println("找到")
-			followinglist[i].IsFollow = true
+			followingList[i].IsFollow = true
 		} else {
 			//发生错误：没有找到
 			fmt.Println("没找到")
-			followinglist[i].IsFollow = false
+			followingList[i].IsFollow = false
 		}
 
 	}
 
-	return followinglist, nil
+	return followingList, nil
 }
