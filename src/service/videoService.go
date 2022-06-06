@@ -51,3 +51,15 @@ func GetVideoAuthor(videoId uint) (uint, error) {
 	}
 	return video.AuthorId, nil
 }
+
+//添加一条视频信息
+func CreateVideo(video *model.Video) {
+	dao.SqlSession.Table("videos").Create(&video)
+}
+
+//根据用户id查找 所有与该用户相关视频信息
+func GetVideoList(userId uint) []model.Video {
+	var videoList []model.Video
+	dao.SqlSession.Table("videos").Where("author_id=?", userId).Find(&videoList)
+	return videoList
+}

@@ -23,7 +23,7 @@ func InitRouter() *gin.Engine {
 		// publish路由组
 		publishGroup := douyinGroup.Group("/publish")
 		{
-			publishGroup.POST("/action", controller.Publish) //提交文件，不用中间件鉴权
+			publishGroup.POST("/action", middleware.JwtMiddleware(), controller.Publish) //提交文件，不用中间件鉴权
 			publishGroup.GET("/list", middleware.JwtMiddleware(), controller.PublishList)
 
 		}
