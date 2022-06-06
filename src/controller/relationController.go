@@ -2,7 +2,6 @@ package controller
 
 import (
 	"douyin/src/common"
-	"douyin/src/middleware"
 	"douyin/src/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -29,10 +28,7 @@ func RelationAction(c *gin.Context) {
 	guestId := uint(getToUserId)
 	actionType := uint(getActionType)
 
-	//2.token鉴权
-	middleware.JwtMiddleware()
-
-	//3.actionType判断
+	//2.service层处理
 	err := service.FollowAction(hostId, guestId, actionType)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, common.Response{
@@ -54,10 +50,7 @@ func FollowList(c *gin.Context) {
 	getUserId, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
 	hostId := uint(getUserId)
 
-	//2.token鉴权
-	middleware.JwtMiddleware()
-
-	//3.service层处理
+	//2.service层处理
 	followinglist, err := service.FollowingList(hostId)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, FollowingListResponse{
@@ -85,10 +78,7 @@ func FollowerList(c *gin.Context) {
 	getUserId, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
 	hostId := uint(getUserId)
 
-	//2.token鉴权
-	middleware.JwtMiddleware()
-
-	//3.service层处理
+	//2.service层处理
 	followinglist, err := service.FollowerList(hostId)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, FollowingListResponse{
