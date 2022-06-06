@@ -19,15 +19,15 @@ type FollowerListResponse struct {
 	UserList []service.Follower `json:"user_list"`
 }
 
-// 关注/取消关注操作
+// RelationAction 关注/取消关注操作
 func RelationAction(c *gin.Context) {
 	//1.取数据
-	user_id_, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
-	to_user_id_, _ := strconv.ParseInt(c.Query("to_user_id"), 10, 64)
-	action_type_, _ := strconv.ParseInt(c.Query("action_type"), 10, 64)
-	hostId := int32(user_id_)
-	guestId := int32(to_user_id_)
-	actionType := int32(action_type_)
+	getUserId, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
+	getToUserId, _ := strconv.ParseInt(c.Query("to_user_id"), 10, 64)
+	getActionType, _ := strconv.ParseInt(c.Query("action_type"), 10, 64)
+	hostId := uint(getUserId)
+	guestId := uint(getToUserId)
+	actionType := uint(getActionType)
 
 	//2.token鉴权
 	middleware.JwtMiddleware()
@@ -51,8 +51,8 @@ func RelationAction(c *gin.Context) {
 func FollowList(c *gin.Context) {
 
 	//1.数据预处理
-	user_id_, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
-	hostId := int32(user_id_)
+	getUserId, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
+	hostId := uint(getUserId)
 
 	//2.token鉴权
 	middleware.JwtMiddleware()
@@ -82,8 +82,8 @@ func FollowList(c *gin.Context) {
 func FollowerList(c *gin.Context) {
 
 	//1.数据预处理
-	user_id_, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
-	hostId := int32(user_id_)
+	getUserId, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
+	hostId := uint(getUserId)
 
 	//2.token鉴权
 	middleware.JwtMiddleware()
