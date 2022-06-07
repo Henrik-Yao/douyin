@@ -57,7 +57,7 @@ func Publish(c *gin.Context) { //上传视频方法
 	//3.返回至前端页面的展示信息
 	filename := filepath.Base(data.Filename)
 	finalName := fmt.Sprintf("%d_%s", userId, filename)
-	saveFile := filepath.Join("resources/videos/", finalName)
+	saveFile := filepath.Join("../resources/videos/", finalName)
 	if err := c.SaveUploadedFile(data, saveFile); err != nil {
 		c.JSON(http.StatusOK, common.Response{
 			StatusCode: 1,
@@ -71,7 +71,7 @@ func Publish(c *gin.Context) { //上传视频方法
 	})
 	//尝试用远程服务器但未部署成功，此时用本地静态资源服务器
 	var playUrl string
-	playUrl = "http://192.168.148.246:8000/" + "videos/" + finalName
+	playUrl = "http://172.22.108.166:8000/" + "videos/" + finalName
 	//封面url已写死
 	var coverUrl string
 	coverUrl = "https://cdn.pixabay.com/photo/2016/03/27/18/10/bear-1283347_1280.jpg"
