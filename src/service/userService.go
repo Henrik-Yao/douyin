@@ -1,42 +1,33 @@
 package service
 
 import (
+	"crypto/md5"
 	"douyin/src/common"
 	"douyin/src/dao"
-	"douyin/src/middleware"
 	"douyin/src/model"
+	"encoding/hex"
 	"fmt"
 	"github.com/jinzhu/gorm"
-	"strconv"
 )
 
 const (
-	MaxUsernameLength = 32 //用户名最大长度
-	MaxPasswordLength = 32 //密码最大长度
-	MinPasswordLength = 6  //密码最小长度
+	MaxUsernameLength = 32            //用户名最大长度
+	MaxPasswordLength = 32            //密码最大长度
+	MinPasswordLength = 6             //密码最小长度
+	secret            = "return11111" //密码加密
 )
-
-// UserResponse 用户注册登录返回的结构体
-type UserResponse struct {
-	UserId uint   `json:"user_id"`
-	Token  string `json:"token"`
-}
-
-// UserInfoQueryResponse 用户信息返回的结构体
-type UserInfoQueryResponse struct {
-	UserId        uint   `json:"user_id"`
-	UserName      string `json:"name"`
-	FollowCount   uint   `json:"follow_count"`
-	FollowerCount uint   `json:"follower_count"`
-}
 
 //增
 
 func CreateRegisterUser(userName string, passWord string) (model.User, error) {
 	//1.Following数据模型准备
+	// 记录一下原始密码(用户登录的密码)
+	originPassword := passWord
+	// 新生成加密密码用于和查询到的密码比较
+	newPassword := EncryptPassword([]byte(originPassword))
 	newUser := model.User{
 		Name:     userName,
-		Password: passWord,
+		Password: newPassword,
 	}
 	//2.模型关联到数据库表users //可注释
 	dao.SqlSession.AutoMigrate(&model.User{})
@@ -72,7 +63,11 @@ func IsUserExist(userName string, password string, login *model.User) error {
 	if login == nil {
 		return common.ErrorNullPointer
 	}
-	dao.SqlSession.Where("name=? and password=?", userName, password).First(login)
+	// 记录一下原始密码(用户登录的密码)
+	originPassword := password
+	// 新生成加密密码用于和查询到的密码比较
+	newPassword := EncryptPassword([]byte(originPassword))
+	dao.SqlSession.Where("name=? and password=?", userName, newPassword).First(login)
 	if login.Model.ID == 0 {
 		return common.ErrorFullPossibility
 	}
@@ -119,90 +114,9 @@ func IsUserLegal(userName string, passWord string) error {
 	return nil
 }
 
-// UserRegister 用户注册
-func UserRegister(userName string, passWord string) (UserResponse, error) {
-
-	//0.数据准备
-	var userResponse = UserResponse{}
-
-	//1.合法性检验
-	err := IsUserLegal(userName, passWord)
-	if err != nil {
-		return userResponse, err
-	}
-
-	//2.新建用户
-	newUser, err := CreateRegisterUser(userName, passWord)
-	if err != nil {
-		return userResponse, err
-	}
-
-	//3.颁发token
-	token, err := middleware.CreateToken(newUser.ID, newUser.Name)
-	if err != nil {
-		return userResponse, err
-	}
-
-	userResponse = UserResponse{
-		UserId: newUser.ID,
-		Token:  token,
-	}
-	return userResponse, nil
-}
-
-// UserLogin 用户登录
-func UserLogin(userName string, passWord string) (UserResponse, error) {
-
-	//0.数据准备
-	var userResponse = UserResponse{}
-
-	//1.合法性检验
-	err := IsUserLegal(userName, passWord)
-	if err != nil {
-		return userResponse, err
-	}
-
-	//2.检查用户是否存在
-	var login model.User
-	err = IsUserExist(userName, passWord, &login)
-	if err != nil {
-		return userResponse, err
-	}
-
-	//3.颁发token
-	token, err := middleware.CreateToken(login.Model.ID, login.Name)
-	if err != nil {
-		return userResponse, err
-	}
-
-	userResponse = UserResponse{
-		UserId: login.Model.ID,
-		Token:  token,
-	}
-	return userResponse, nil
-}
-
-// UserInfo 用户信息
-func UserInfo(rawId string) (UserInfoQueryResponse, error) {
-	//0.数据准备
-	var userInfoQueryResponse = UserInfoQueryResponse{}
-	userId, err := strconv.ParseUint(rawId, 10, 64)
-	if err != nil {
-		return userInfoQueryResponse, err
-	}
-
-	//1.获取用户信息
-	var user model.User
-	err = GetUserById(uint(userId), &user)
-	if err != nil {
-		return userInfoQueryResponse, err
-	}
-
-	userInfoQueryResponse = UserInfoQueryResponse{
-		UserId:        user.Model.ID,
-		UserName:      user.Name,
-		FollowCount:   user.FollowCount,
-		FollowerCount: user.FollowerCount,
-	}
-	return userInfoQueryResponse, nil
+// EncryptPassword md5密码加密
+func EncryptPassword(data []byte) (result string) {
+	h := md5.New()
+	h.Write([]byte(secret))
+	return hex.EncodeToString(h.Sum(data))
 }
