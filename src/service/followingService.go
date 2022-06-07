@@ -8,15 +8,6 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// Follower 用于取数据，关注者/被关注者信息
-type Follower struct {
-	Id            uint   `json:"id"`
-	Name          string `json:"name"`
-	FollowCount   uint   `json:"follow_count"`
-	FollowerCount uint   `json:"follower_count"`
-	IsFollow      bool   `json:"is_follow"`
-}
-
 //关注表
 var followings = "followings"
 
@@ -144,31 +135,13 @@ func FollowAction(HostId uint, GuestId uint, actionType uint) error {
 }
 
 // FollowingList 获取关注表
-func FollowingList(HostId uint) ([]Follower, error) {
-	//1.followingList数据模型准备
-	var followingList []Follower
-	//var test []model.User
-
+func FollowingList(HostId uint) ([]model.User, error) {
+	//1.userList数据模型准备
+	var userList []model.User
 	//2.查HostId的关注表
 	if err := dao.SqlSession.Model(&model.User{}).Joins("left join "+followings+" on "+users+".id = "+followings+".guest_id").
-		Where(followings+".host_id=? AND "+followings+".deleted_at is null", HostId).Scan(&followingList).Error; err != nil {
-		return followingList, nil
+		Where(followings+".host_id=? AND "+followings+".deleted_at is null", HostId).Scan(&userList).Error; err != nil {
+		return userList, nil
 	}
-	fmt.Println(followingList)
-
-	//3.修改查询结果中的is_follow属性
-	for i, m := range followingList {
-		if IsFollowing(m.Id, HostId) {
-			//没有发生错误：找到
-			fmt.Println("找到")
-			followingList[i].IsFollow = true
-		} else {
-			//发生错误：没有找到
-			fmt.Println("没找到")
-			followingList[i].IsFollow = false
-		}
-
-	}
-
-	return followingList, nil
+	return userList, nil
 }
