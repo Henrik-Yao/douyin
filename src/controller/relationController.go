@@ -2,6 +2,7 @@ package controller
 
 import (
 	"douyin/src/common"
+	"douyin/src/middleware"
 	"douyin/src/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -21,10 +22,11 @@ type FollowerListResponse struct {
 // RelationAction 关注/取消关注操作
 func RelationAction(c *gin.Context) {
 	//1.取数据
-	getUserId, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
+	strToken := c.Query("token")
+	tokenStruct, _ := middleware.CheckToken(strToken)
 	getToUserId, _ := strconv.ParseInt(c.Query("to_user_id"), 10, 64)
 	getActionType, _ := strconv.ParseInt(c.Query("action_type"), 10, 64)
-	hostId := uint(getUserId)
+	hostId := tokenStruct.UserId
 	guestId := uint(getToUserId)
 	actionType := uint(getActionType)
 
@@ -47,11 +49,12 @@ func RelationAction(c *gin.Context) {
 func FollowList(c *gin.Context) {
 
 	//1.数据预处理
-	getUserId, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
-	hostId := uint(getUserId)
+	strToken := c.Query("token")
+	tokenStruct, _ := middleware.CheckToken(strToken)
+	hostId := tokenStruct.UserId
 
 	//2.service层处理
-	followinglist, err := service.FollowingList(hostId)
+	followingList, err := service.FollowingList(hostId)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, FollowingListResponse{
 			Response: common.Response{
@@ -66,7 +69,7 @@ func FollowList(c *gin.Context) {
 				StatusCode: 0,
 				StatusMsg:  "已找到列表！",
 			},
-			UserList: followinglist,
+			UserList: followingList,
 		})
 	}
 }
@@ -79,7 +82,7 @@ func FollowerList(c *gin.Context) {
 	hostId := uint(getUserId)
 
 	//2.service层处理
-	followinglist, err := service.FollowerList(hostId)
+	followingList, err := service.FollowerList(hostId)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, FollowingListResponse{
 			Response: common.Response{
@@ -94,7 +97,7 @@ func FollowerList(c *gin.Context) {
 				StatusCode: 0,
 				StatusMsg:  "已找到列表！",
 			},
-			UserList: followinglist,
+			UserList: followingList,
 		})
 	}
 }

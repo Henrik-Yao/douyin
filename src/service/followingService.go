@@ -80,7 +80,7 @@ func DeleteFollowing(HostId uint, GuestId uint) (err error) {
 }
 
 // FollowAction 关注操作
-func FollowAction(HostId uint, GuestId uint, actionType uint) (err error) {
+func FollowAction(HostId uint, GuestId uint, actionType uint) error {
 	//创建关注操作
 	if actionType == 1 {
 		//判断关注是否存在
@@ -91,12 +91,24 @@ func FollowAction(HostId uint, GuestId uint, actionType uint) (err error) {
 			//关注不存在
 			fmt.Println("关注不存在，创建关注")
 			//创建关注
-			CreateFollowing(HostId, GuestId)
-			CreateFollower(GuestId, HostId)
+			err := CreateFollowing(HostId, GuestId)
+			if err != nil {
+				return err
+			}
+			err = CreateFollower(GuestId, HostId)
+			if err != nil {
+				return err
+			}
 			//增加host_id的关注数
-			IncreaseFollowCount(HostId)
+			err = IncreaseFollowCount(HostId)
+			if err != nil {
+				return err
+			}
 			//增加guest_id的粉丝数
-			IncreaseFollowerCount(GuestId)
+			err = IncreaseFollowerCount(GuestId)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	if actionType == 2 {
@@ -105,12 +117,24 @@ func FollowAction(HostId uint, GuestId uint, actionType uint) (err error) {
 			//关注存在
 			fmt.Println("关注已存在,删除关注")
 			//删除关注
-			DeleteFollowing(HostId, GuestId)
-			DeleteFollower(GuestId, HostId)
+			err := DeleteFollowing(HostId, GuestId)
+			if err != nil {
+				return err
+			}
+			err = DeleteFollower(GuestId, HostId)
+			if err != nil {
+				return err
+			}
 			//减少host_id的关注数
-			DecreaseFollowCount(HostId)
+			err = DecreaseFollowCount(HostId)
+			if err != nil {
+				return err
+			}
 			//减少guest_id的粉丝数
-			DecreaseFollowerCount(GuestId)
+			err = DecreaseFollowerCount(GuestId)
+			if err != nil {
+				return err
+			}
 		} else {
 			//关注不存在
 			fmt.Println("关注不存在")
@@ -127,7 +151,7 @@ func FollowingList(HostId uint) ([]Follower, error) {
 
 	//2.查HostId的关注表
 	if err := dao.SqlSession.Model(&model.User{}).Joins("left join "+followings+" on "+users+".id = "+followings+".guest_id").
-		Where(followings+".host_id=?", HostId).Scan(&followingList).Error; err != nil {
+		Where(followings+".host_id=? AND "+followings+".deleted_at is null", HostId).Scan(&followingList).Error; err != nil {
 		return followingList, nil
 	}
 	fmt.Println(followingList)

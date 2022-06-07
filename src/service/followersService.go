@@ -77,7 +77,7 @@ func FollowerList(HostId uint) ([]Follower, error) {
 
 	//2.查HostId的粉丝表
 	if err := dao.SqlSession.Model(&model.User{}).Joins("left join "+followers+" on "+users+".id = "+followers+".guest_id").
-		Where(followers+".host_id=?", HostId).Scan(&followerList).Error; err != nil {
+		Where(followers+".host_id=?"+followers+".deleted_at is null", HostId).Scan(&followerList).Error; err != nil {
 		return followerList, nil
 	}
 	fmt.Println(followerList)
