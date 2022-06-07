@@ -3,6 +3,7 @@ package routes
 import (
 	"douyin/src/controller"
 	"douyin/src/middleware"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -39,8 +40,8 @@ func InitRouter() *gin.Engine {
 		// comment路由组
 		commentGroup := douyinGroup.Group("/comment")
 		{
-			commentGroup.POST("/action", middleware.JwtMiddleware(), controller.CommentAction)
-			commentGroup.GET("/list", middleware.JwtMiddleware(), controller.CommentList)
+			commentGroup.POST("/action/", middleware.JwtMiddleware(), controller.CommentAction)
+			commentGroup.GET("/list/", middleware.JwtMiddleware(), controller.CommentList)
 		}
 
 		// relation路由组
