@@ -6,7 +6,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-//查询某用户是否点赞某视频
+// CheckFavorite 查询某用户是否点赞某视频
 func CheckFavorite(uid uint, vid uint) bool {
 	var total int
 	if err := dao.SqlSession.Table("favorites").
@@ -20,7 +20,7 @@ func CheckFavorite(uid uint, vid uint) bool {
 	return true
 }
 
-//点赞操作
+// FavoriteAction 点赞操作
 func FavoriteAction(userId uint, videoId uint, actionType uint) (err error) {
 
 	//1-点赞
@@ -38,7 +38,7 @@ func FavoriteAction(userId uint, videoId uint, actionType uint) (err error) {
 				return err
 			}
 			dao.SqlSession.Table("videos").Where("id = ?", videoId).Update("favorite_count", gorm.Expr("favorite_count + 1"))
-		} else {                          //存在
+		} else { //存在
 			if favoriteExist.State == 0 { //state为0-video的favorite_count加1
 				dao.SqlSession.Table("videos").Where("id = ?", videoId).Update("favorite_count", gorm.Expr("favorite_count + 1"))
 				dao.SqlSession.Table("favorites").Where("video_id = ?", videoId).Update("state", 1)
@@ -70,7 +70,7 @@ func FavoriteAction(userId uint, videoId uint, actionType uint) (err error) {
 	return nil
 }
 
-//获取点赞列表
+// FavoriteList 获取点赞列表
 func FavoriteList(userId uint) ([]model.Video, error) {
 
 	//查询当前id用户的所有点赞视频

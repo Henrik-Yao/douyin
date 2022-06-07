@@ -33,7 +33,7 @@ type FavoriteListResponse struct {
 	VideoList []FavoriteVideo `json:"video_list,omitempty"`
 }
 
-//点赞视频方法
+// Favorite 点赞视频方法
 func Favorite(c *gin.Context) {
 	//参数绑定
 	//user_id获取
@@ -63,7 +63,7 @@ func Favorite(c *gin.Context) {
 	}
 }
 
-//获取列表方法
+// FavoriteList 获取列表方法
 func FavoriteList(c *gin.Context) {
 	//user_id获取
 	getUserId, _ := c.Get("user_id")

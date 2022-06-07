@@ -10,7 +10,7 @@ import (
 )
 
 const videoNum = 2 //feed每次返回的视频数量
-//获得视频列表
+// FeedGet 获得视频列表
 func FeedGet(lastTime int64) ([]model.Video, error) {
 	//t := time.Now()
 	//fmt.Println(t)
@@ -25,7 +25,7 @@ func FeedGet(lastTime int64) ([]model.Video, error) {
 	return VideoList, err
 }
 
-// add comment_count
+// AddCommentCount add comment_count
 func AddCommentCount(videoId uint) error {
 
 	if err := dao.SqlSession.Table("videos").Where("id = ?", videoId).Update("comment_count", gorm.Expr("comment_count + 1")).Error; err != nil {
@@ -34,7 +34,7 @@ func AddCommentCount(videoId uint) error {
 	return nil
 }
 
-// reduce comment_count
+// ReduceCommentCount reduce comment_count
 func ReduceCommentCount(videoId uint) error {
 
 	if err := dao.SqlSession.Table("videos").Where("id = ?", videoId).Update("comment_count", gorm.Expr("comment_count - 1")).Error; err != nil {
@@ -43,7 +43,7 @@ func ReduceCommentCount(videoId uint) error {
 	return nil
 }
 
-// get video author
+// GetVideoAuthor get video author
 func GetVideoAuthor(videoId uint) (uint, error) {
 	var video model.Video
 	if err := dao.SqlSession.Table("videos").Where("id = ?", videoId).Find(&video).Error; err != nil {
@@ -52,12 +52,12 @@ func GetVideoAuthor(videoId uint) (uint, error) {
 	return video.AuthorId, nil
 }
 
-//添加一条视频信息
+// CreateVideo 添加一条视频信息
 func CreateVideo(video *model.Video) {
 	dao.SqlSession.Table("videos").Create(&video)
 }
 
-//根据用户id查找 所有与该用户相关视频信息
+// GetVideoList 根据用户id查找 所有与该用户相关视频信息
 func GetVideoList(userId uint) []model.Video {
 	var videoList []model.Video
 	dao.SqlSession.Table("videos").Where("author_id=?", userId).Find(&videoList)

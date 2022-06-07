@@ -89,7 +89,7 @@ func PostComment(c *gin.Context, userId uint, text string, videoId uint) {
 		return nil
 	})
 	getUser, err2 := service.GetUser(userId)
-	videoAuthor, err3 := service.GetVideoAuthor(uint(videoId))
+	videoAuthor, err3 := service.GetVideoAuthor(videoId)
 
 	if err1 != nil || err2 != nil || err3 != nil {
 		c.JSON(http.StatusOK, common.Response{
