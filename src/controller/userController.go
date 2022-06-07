@@ -2,16 +2,12 @@ package controller
 
 import (
 	"douyin/src/common"
-	"douyin/src/model"
 	"douyin/src/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-
-
 type UserRegisterResponse struct {
-
 	common.Response
 	service.UserResponse
 }
