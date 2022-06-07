@@ -32,14 +32,6 @@ type UserInfoQueryResponse struct {
 
 //增
 
-// CreateUser 新建用户
-func CreateUser(user *model.User) (err error) {
-	if err = dao.SqlSession.Create(user).Error; err != nil {
-		return err
-	}
-	return
-}
-
 func CreateRegisterUser(userName string, passWord string) (model.User, error) {
 	//1.Following数据模型准备
 	newUser := model.User{
