@@ -2,7 +2,9 @@
 字节跳动青训营抖音项目后端接口
 
 
-![](resources/架构图.jpeg)
+架构图如下：
+
+![](resources/后端架构图.jpeg)
 
 
 
