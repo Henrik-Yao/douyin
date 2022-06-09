@@ -57,7 +57,7 @@ func Publish(c *gin.Context) { //上传视频方法
 	//3.返回至前端页面的展示信息
 	filename := filepath.Base(data.Filename)
 	finalName := fmt.Sprintf("%d_%s", userId, filename)
-	saveFile := filepath.Join("../resources/videos/", finalName)
+	saveFile := filepath.Join("../../videos/", finalName)
 	if err := c.SaveUploadedFile(data, saveFile); err != nil {
 		c.JSON(http.StatusOK, common.Response{
 			StatusCode: 1,
