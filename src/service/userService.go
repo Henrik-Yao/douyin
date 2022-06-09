@@ -1,30 +1,24 @@
 package service
 
 import (
-	"crypto/md5"
 	"douyin/src/common"
 	"douyin/src/dao"
 	"douyin/src/model"
-	"encoding/hex"
-	"fmt"
 	"github.com/jinzhu/gorm"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
-	MaxUsernameLength = 32            //用户名最大长度
-	MaxPasswordLength = 32            //密码最大长度
-	MinPasswordLength = 6             //密码最小长度
-	secret            = "return11111" //密码加密
+	MaxUsernameLength = 32 //用户名最大长度
+	MaxPasswordLength = 32 //密码最大长度
+	MinPasswordLength = 6  //密码最小长度
 )
 
 //增
 
 func CreateRegisterUser(userName string, passWord string) (model.User, error) {
 	//1.Following数据模型准备
-	// 记录一下原始密码(用户登录的密码)
-	originPassword := passWord
-	// 新生成加密密码用于和查询到的密码比较
-	newPassword := EncryptPassword([]byte(originPassword))
+	newPassword, _ := HashAndSalt(passWord)
 	newUser := model.User{
 		Name:     userName,
 		Password: newPassword,
@@ -39,7 +33,8 @@ func CreateRegisterUser(userName string, passWord string) (model.User, error) {
 		//用户不存在，新建用户
 		if err := dao.SqlSession.Model(&model.User{}).Create(&newUser).Error; err != nil {
 			//错误处理
-			fmt.Println(err)
+			//fmt.Println(err)
+			panic(err)
 			return newUser, err
 		}
 	}
@@ -63,11 +58,10 @@ func IsUserExist(userName string, password string, login *model.User) error {
 	if login == nil {
 		return common.ErrorNullPointer
 	}
-	// 记录一下原始密码(用户登录的密码)
-	originPassword := password
-	// 新生成加密密码用于和查询到的密码比较
-	newPassword := EncryptPassword([]byte(originPassword))
-	dao.SqlSession.Where("name=? and password=?", userName, newPassword).First(login)
+	dao.SqlSession.Where("name=?", userName).First(login)
+	if !ComparePasswords(login.Password, password) {
+		return common.ErrorPasswordFalse
+	}
 	if login.Model.ID == 0 {
 		return common.ErrorFullPossibility
 	}
@@ -92,7 +86,6 @@ func GetUserById(userId uint, user *model.User) error {
 	}
 	dao.SqlSession.Where("id=?", userId).First(user)
 	return nil
-
 }
 
 // IsUserLegal 用户名和密码合法性检验
@@ -114,9 +107,24 @@ func IsUserLegal(userName string, passWord string) error {
 	return nil
 }
 
-// EncryptPassword md5密码加密
-func EncryptPassword(data []byte) (result string) {
-	h := md5.New()
-	h.Write([]byte(secret))
-	return hex.EncodeToString(h.Sum(data))
+// HashAndSalt 加密密码
+func HashAndSalt(pwdStr string) (pwdHash string, err error) {
+	pwd := []byte(pwdStr)
+	hash, err := bcrypt.GenerateFromPassword(pwd, bcrypt.MinCost)
+	if err != nil {
+		return
+	}
+	pwdHash = string(hash)
+	return
+}
+
+// ComparePasswords 验证密码
+func ComparePasswords(hashedPwd string, plainPwd string) bool {
+	byteHash := []byte(hashedPwd)
+	bytePwd := []byte(plainPwd)
+	err := bcrypt.CompareHashAndPassword(byteHash, bytePwd)
+	if err != nil {
+		return false
+	}
+	return true
 }
