@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"douyin/src/common"
-	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -54,7 +53,6 @@ func JwtMiddleware() gin.HandlerFunc {
 		if tokenStr == "" {
 			tokenStr = c.PostForm("token")
 		}
-		fmt.Println(tokenStr)
 		//用户不存在
 		if tokenStr == "" {
 			c.JSON(http.StatusOK, common.Response{StatusCode: 401, StatusMsg: "用户不存在"})
