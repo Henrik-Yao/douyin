@@ -3,7 +3,6 @@ package service
 import (
 	"douyin/src/dao"
 	"douyin/src/model"
-	"fmt"
 	"github.com/jinzhu/gorm"
 )
 
@@ -70,30 +69,14 @@ func DeleteFollower(HostId uint, GuestId uint) (err error) {
 	return nil
 }
 
-// FollowerList 获取粉丝表
-func FollowerList(HostId uint) ([]Follower, error) {
-	//1.followerList数据模型准备
-	var followerList []Follower
-
-	//2.查HostId的粉丝表
+// FollowerList  获取粉丝表
+func FollowerList(HostId uint) ([]model.User, error) {
+	//1.userList数据模型准备
+	var userList []model.User
+	//2.查HostId的关注表
 	if err := dao.SqlSession.Model(&model.User{}).Joins("left join "+followers+" on "+users+".id = "+followers+".guest_id").
-		Where(followers+".host_id=?"+followers+".deleted_at is null", HostId).Scan(&followerList).Error; err != nil {
-		return followerList, nil
+		Where(followers+".host_id=? AND "+followers+".deleted_at is null", HostId).Scan(&userList).Error; err != nil {
+		return userList, nil
 	}
-	fmt.Println(followerList)
-
-	//3.修改查询结果中的is_follow属性
-	for i, m := range followerList {
-		if IsFollower(m.Id, HostId) {
-			//没有发生错误：找到
-			fmt.Println("找到")
-			followerList[i].IsFollow = true
-		} else {
-			//发生错误：没有找到
-			fmt.Println("没找到")
-			followerList[i].IsFollow = false
-		}
-	}
-
-	return followerList, nil
+	return userList, nil
 }
