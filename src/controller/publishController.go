@@ -1,13 +1,18 @@
 package controller
 
 import (
+	"context"
 	"douyin/src/common"
 	"douyin/src/model"
 	"douyin/src/service"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	logging "github.com/sirupsen/logrus"
+	"github.com/tencentyun/cos-go-sdk-v5"
 	"net/http"
+	"net/url"
+	"os"
 	"path/filepath"
 	"strconv"
 )
@@ -36,6 +41,33 @@ type VideoListResponse struct {
 	VideoList []ReturnVideo `json:"video_list"`
 }
 
+const (
+	COS_BUCKET_NAME = "dong"
+	COS_APP_ID      = "1305843950"
+	COS_REGION      = "ap-nanjing"
+	COS_SECRET_ID   = "AKIDa0B5j6C1ZMvDG4brqZ1B5i5BzXprc6KH"
+	COS_SECRET_KEY  = "h7G9l6AxTigNozuYuzoMfjX4NREl1KNA"
+	COS_URL_FORMAT  = "http://%s-%s.cos.%s.myqcloud.com" // 此项固定
+)
+
+func CosUpload(fileName string, path string) (string, error) {
+	u, _ := url.Parse(fmt.Sprintf(COS_URL_FORMAT, COS_BUCKET_NAME, COS_APP_ID, COS_REGION))
+	b := &cos.BaseURL{BucketURL: u}
+	client := cos.NewClient(b, &http.Client{
+		Transport: &cos.AuthorizationTransport{
+			SecretID:  COS_SECRET_ID,
+			SecretKey: COS_SECRET_KEY,
+		},
+	})
+
+	//path为本地的保存路径
+	_, err := client.Object.PutFromFile(context.Background(), fileName, path, nil)
+	if err != nil {
+		panic(err)
+	}
+	return "https://dong-1305843950.cos.ap-nanjing.myqcloud.com/" + fileName, nil
+}
+
 func Publish(c *gin.Context) { //上传视频方法
 	//1.中间件验证token后，获取userId
 	getUserId, _ := c.Get("user_id")
@@ -55,10 +87,20 @@ func Publish(c *gin.Context) { //上传视频方法
 	}
 
 	//3.返回至前端页面的展示信息
-	filename := filepath.Base(data.Filename)
-	finalName := fmt.Sprintf("%d_%s", userId, filename)
+	fileName := filepath.Base(data.Filename)
+	finalName := fmt.Sprintf("%d_%s", userId, fileName)
+	//先存储到本地文件夹，再保存到云端，获取封面后最后删除
 	saveFile := filepath.Join("../videos/", finalName)
 	if err := c.SaveUploadedFile(data, saveFile); err != nil {
+		c.JSON(http.StatusOK, common.Response{
+			StatusCode: 1,
+			StatusMsg:  err.Error(),
+		})
+		return
+	}
+	//从本地上传到云端，并获取云端地址
+	playUrl, err := CosUpload(finalName, saveFile)
+	if err != nil {
 		c.JSON(http.StatusOK, common.Response{
 			StatusCode: 1,
 			StatusMsg:  err.Error(),
@@ -69,12 +111,30 @@ func Publish(c *gin.Context) { //上传视频方法
 		StatusCode: 0,
 		StatusMsg:  finalName + "--uploaded successfully",
 	})
-	//尝试用远程服务器但未部署成功，此时用本地静态资源服务器
-	var playUrl string
-	playUrl = "http://172.22.108.166:8000/" + "videos/" + finalName
-	//封面url已写死
+
 	var coverUrl string
 	coverUrl = "https://cdn.pixabay.com/photo/2016/03/27/18/10/bear-1283347_1280.jpg"
+
+	////将封面上传到云端并返回url
+	//coverUrl, err := CosUpload(coverName, coverName)
+	//if err != nil {
+	//	c.JSON(http.StatusOK, common.Response{
+	//		StatusCode: 1,
+	//		StatusMsg:  err.Error(),
+	//	})
+	//	return
+	//}
+
+	//删除本地public中的视频
+	err = os.Remove(saveFile)
+	if err != nil {
+		logging.Info(err)
+	}
+	//删除本地封面
+	//err = os.Remove(coverPath)
+	//if err != nil {
+	//	logging.Info(err)
+	//}
 
 	//4.保存发布信息至数据库,刚开始发布，喜爱和评论默认为0
 	video := model.Video{
