@@ -14,7 +14,9 @@ var users = "users"
 
 // IsFollower 判断HostId是否有GuestId这个粉丝
 func IsFollower(HostId uint, GuestId uint) bool {
+	//1.数据模型准备
 	var relationExist = &model.Followers{}
+	//2.查询粉丝表中粉丝是否存在
 	if err := dao.SqlSession.Model(&model.Followers{}).Where("host_id=? AND guest_id=?", HostId, GuestId).First(&relationExist).Error; gorm.IsRecordNotFoundError(err) {
 		//粉丝不存在
 		return false
@@ -24,19 +26,23 @@ func IsFollower(HostId uint, GuestId uint) bool {
 }
 
 // IncreaseFollowerCount 增加HostId的粉丝数（Host_id 的 follow_count+1）
-func IncreaseFollowerCount(HostId uint) (err error) {
-	dao.SqlSession.Model(&model.User{}).Where("id=?", HostId).Update("follower_count", gorm.Expr("follower_count+?", 1))
+func IncreaseFollowerCount(HostId uint) error {
+	if err := dao.SqlSession.Model(&model.User{}).Where("id=?", HostId).Update("follower_count", gorm.Expr("follower_count+?", 1)).Error; err != nil {
+		return err
+	}
 	return nil
 }
 
 // DecreaseFollowerCount 增加HostId的粉丝数（Host_id 的 follow_count-1）
-func DecreaseFollowerCount(HostId uint) (err error) {
-	dao.SqlSession.Model(&model.User{}).Where("id=?", HostId).Update("follower_count", gorm.Expr("follower_count-?", 1))
+func DecreaseFollowerCount(HostId uint) error {
+	if err := dao.SqlSession.Model(&model.User{}).Where("id=?", HostId).Update("follower_count", gorm.Expr("follower_count-?", 1)).Error; err != nil {
+		return err
+	}
 	return nil
 }
 
 // CreateFollower 创建粉丝
-func CreateFollower(HostId uint, GuestId uint) (err error) {
+func CreateFollower(HostId uint, GuestId uint) error {
 
 	//1.Following数据模型准备
 	newFollower := model.Followers{
@@ -44,27 +50,25 @@ func CreateFollower(HostId uint, GuestId uint) (err error) {
 		GuestId: GuestId,
 	}
 
-	//2.模型关联到数据库表followings
-	dao.SqlSession.AutoMigrate(&model.Followers{})
-
-	//3.新建following
-	dao.SqlSession.Model(&model.Followers{}).Create(&newFollower)
+	//2.新建following
+	if err := dao.SqlSession.Model(&model.Followers{}).Create(&newFollower).Error; err != nil {
+		return err
+	}
 	return nil
 }
 
 // DeleteFollower 删除粉丝
-func DeleteFollower(HostId uint, GuestId uint) (err error) {
+func DeleteFollower(HostId uint, GuestId uint) error {
 	//1.Following数据模型准备
 	newFollower := model.Followers{
 		HostId:  HostId,
 		GuestId: GuestId,
 	}
 
-	//2.模型关联到数据库表followings
-	dao.SqlSession.AutoMigrate(&model.Followers{})
-
-	//3.删除following
-	dao.SqlSession.Model(&model.Followers{}).Where("host_id=? AND guest_id=?", HostId, GuestId).Delete(&newFollower)
+	//2.删除following
+	if err := dao.SqlSession.Model(&model.Followers{}).Where("host_id=? AND guest_id=?", HostId, GuestId).Delete(&newFollower).Error; err != nil {
+		return err
+	}
 
 	return nil
 }
