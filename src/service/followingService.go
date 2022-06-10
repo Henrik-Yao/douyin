@@ -3,19 +3,16 @@ package service
 import (
 	"douyin/src/dao"
 	"douyin/src/model"
-	"fmt"
-
 	"github.com/jinzhu/gorm"
 )
 
 //关注表
 var followings = "followings"
 
-//用户表
-
 // IsFollowing 判断HostId是否关注GuestId
 func IsFollowing(HostId uint, GuestId uint) bool {
 	var relationExist = &model.Following{}
+	//判断关注是否存在
 	if err := dao.SqlSession.Model(&model.Following{}).Where("host_id=? AND guest_id=?", HostId, GuestId).First(&relationExist).Error; gorm.IsRecordNotFoundError(err) {
 		//关注不存在
 		return false
@@ -25,19 +22,23 @@ func IsFollowing(HostId uint, GuestId uint) bool {
 }
 
 // IncreaseFollowCount 增加HostId的关注数（Host_id 的 follow_count+1）
-func IncreaseFollowCount(HostId uint) (err error) {
-	dao.SqlSession.Model(&model.User{}).Where("id=?", HostId).Update("follow_count", gorm.Expr("follow_count+?", 1))
+func IncreaseFollowCount(HostId uint) error {
+	if err := dao.SqlSession.Model(&model.User{}).Where("id=?", HostId).Update("follow_count", gorm.Expr("follow_count+?", 1)).Error; err != nil {
+		return err
+	}
 	return nil
 }
 
-// DecreaseFollowCount 增加HostId的关注数（Host_id 的 follow_count-1）
-func DecreaseFollowCount(HostId uint) (err error) {
-	dao.SqlSession.Model(&model.User{}).Where("id=?", HostId).Update("follow_count", gorm.Expr("follow_count-?", 1))
+// DecreaseFollowCount 减少HostId的关注数（Host_id 的 follow_count-1）
+func DecreaseFollowCount(HostId uint) error {
+	if err := dao.SqlSession.Model(&model.User{}).Where("id=?", HostId).Update("follow_count", gorm.Expr("follow_count-?", 1)).Error; err != nil {
+		return err
+	}
 	return nil
 }
 
 // CreateFollowing 创建关注
-func CreateFollowing(HostId uint, GuestId uint) (err error) {
+func CreateFollowing(HostId uint, GuestId uint) error {
 
 	//1.Following数据模型准备
 	newFollowing := model.Following{
@@ -45,27 +46,25 @@ func CreateFollowing(HostId uint, GuestId uint) (err error) {
 		GuestId: GuestId,
 	}
 
-	//2.模型关联到数据库表followings
-	//dao.SqlSession.AutoMigrate(&model.Following{})
-
-	//3.新建following
-	dao.SqlSession.Model(&model.Following{}).Create(&newFollowing)
+	//2.新建following
+	if err := dao.SqlSession.Model(&model.Following{}).Create(&newFollowing).Error; err != nil {
+		return err
+	}
 	return nil
 }
 
 // DeleteFollowing 删除关注
-func DeleteFollowing(HostId uint, GuestId uint) (err error) {
+func DeleteFollowing(HostId uint, GuestId uint) error {
 	//1.Following数据模型准备
-	newFollowing := model.Following{
+	deleteFollowing := model.Following{
 		HostId:  HostId,
 		GuestId: GuestId,
 	}
 
-	//2.模型关联到数据库表followings
-	//dao.SqlSession.AutoMigrate(&model.Following{})
-
-	//3.删除following
-	dao.SqlSession.Model(&model.Following{}).Where("host_id=? AND guest_id=?", HostId, GuestId).Delete(&newFollowing)
+	//2.删除following
+	if err := dao.SqlSession.Model(&model.Following{}).Where("host_id=? AND guest_id=?", HostId, GuestId).Delete(&deleteFollowing).Error; err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -77,11 +76,9 @@ func FollowAction(HostId uint, GuestId uint, actionType uint) error {
 		//判断关注是否存在
 		if IsFollowing(HostId, GuestId) {
 			//关注存在
-			fmt.Println("关注已存在")
+
 		} else {
-			//关注不存在
-			fmt.Println("关注不存在，创建关注")
-			//创建关注
+			//关注不存在,创建关注
 			err := CreateFollowing(HostId, GuestId)
 			if err != nil {
 				return err
@@ -105,9 +102,7 @@ func FollowAction(HostId uint, GuestId uint, actionType uint) error {
 	if actionType == 2 {
 		//判断关注是否存在
 		if IsFollowing(HostId, GuestId) {
-			//关注存在
-			fmt.Println("关注已存在,删除关注")
-			//删除关注
+			//关注存在,删除关注
 			err := DeleteFollowing(HostId, GuestId)
 			if err != nil {
 				return err
@@ -128,7 +123,6 @@ func FollowAction(HostId uint, GuestId uint, actionType uint) error {
 			}
 		} else {
 			//关注不存在
-			fmt.Println("关注不存在")
 		}
 	}
 	return nil

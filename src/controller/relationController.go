@@ -10,6 +10,7 @@ import (
 	"strconv"
 )
 
+// ReturnFollower 关注表与粉丝表共用的用户数据模型
 type ReturnFollower struct {
 	Id            uint   `json:"id"`
 	Name          string `json:"name"`
@@ -18,11 +19,13 @@ type ReturnFollower struct {
 	IsFollow      bool   `json:"is_follow"`
 }
 
+// FollowingListResponse 关注表相应结构体
 type FollowingListResponse struct {
 	common.Response
 	UserList []ReturnFollower `json:"user_list"`
 }
 
+// FollowerListResponse 粉丝表相应结构体
 type FollowerListResponse struct {
 	common.Response
 	UserList []ReturnFollower `json:"user_list"`
@@ -31,15 +34,18 @@ type FollowerListResponse struct {
 // RelationAction 关注/取消关注操作
 func RelationAction(c *gin.Context) {
 	//1.取数据
+	//1.1 从token中获取用户id
 	strToken := c.Query("token")
 	tokenStruct, _ := middleware.CheckToken(strToken)
-	getToUserId, _ := strconv.ParseInt(c.Query("to_user_id"), 10, 64)
-	getActionType, _ := strconv.ParseInt(c.Query("action_type"), 10, 64)
 	hostId := tokenStruct.UserId
+	//1.2 获取待关注的用户id
+	getToUserId, _ := strconv.ParseInt(c.Query("to_user_id"), 10, 64)
 	guestId := uint(getToUserId)
+	//1.3 获取关注操作（关注1，取消关注2）
+	getActionType, _ := strconv.ParseInt(c.Query("action_type"), 10, 64)
 	actionType := uint(getActionType)
 
-	//2.service层处理
+	//2.service层进行关注/取消关注处理
 	err := service.FollowAction(hostId, guestId, actionType)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, common.Response{
@@ -58,23 +64,26 @@ func RelationAction(c *gin.Context) {
 func FollowList(c *gin.Context) {
 
 	//1.数据预处理
-	var err error
-	var userList []model.User
+	//1.1获取用户本人id
 	strToken := c.Query("token")
 	tokenStruct, _ := middleware.CheckToken(strToken)
-	getGuestId, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
 	hostId := tokenStruct.UserId
+	//1.2获取其他用户id
+	getGuestId, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
 	guestId := uint(getGuestId)
 
-	//2.判断查询类型
+	//2.判断查询类型，从数据库取用户列表
+	var err error
+	var userList []model.User
 	if guestId == 0 {
-		//查本人的关注表
+		//若其他用户id为0，代表查本人的关注表
 		userList, err = service.FollowingList(hostId)
 	} else {
-		//查对方的关注表
+		//若其他用户id不为0，代表查对方的关注表
 		userList, err = service.FollowingList(guestId)
 	}
 
+	//构造返回的数据
 	var ReturnFollowerList = make([]ReturnFollower, len(userList))
 	for i, m := range userList {
 		ReturnFollowerList[i].Id = m.ID
@@ -84,7 +93,6 @@ func FollowList(c *gin.Context) {
 		ReturnFollowerList[i].IsFollow = service.IsFollowing(hostId, m.ID)
 	}
 
-	//fmt.Println(ReturnFollowerList)
 	//3.响应返回
 	if err != nil {
 		c.JSON(http.StatusBadRequest, FollowingListResponse{
@@ -109,15 +117,17 @@ func FollowList(c *gin.Context) {
 func FollowerList(c *gin.Context) {
 
 	//1.数据预处理
-	var err error
-	var userList []model.User
+	//1.1获取用户本人id
 	strToken := c.Query("token")
 	tokenStruct, _ := middleware.CheckToken(strToken)
-	getGuestId, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
 	hostId := tokenStruct.UserId
+	//1.2获取其他用户id
+	getGuestId, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
 	guestId := uint(getGuestId)
 
 	//2.判断查询类型
+	var err error
+	var userList []model.User
 	if guestId == 0 {
 		//查本人的关注表
 		userList, err = service.FollowerList(hostId)
@@ -126,6 +136,7 @@ func FollowerList(c *gin.Context) {
 		userList, err = service.FollowerList(guestId)
 	}
 
+	//3.判断查询类型，从数据库取用户列表
 	var ReturnFollowerList = make([]ReturnFollower, len(userList))
 	for i, m := range userList {
 		ReturnFollowerList[i].Id = m.ID
