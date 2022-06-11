@@ -49,7 +49,7 @@ func RelationAction(c *gin.Context) {
 	if hostId == guestId {
 		c.JSON(http.StatusOK, common.Response{
 			StatusCode: 405,
-			StatusMsg:  "你无法关注自己",
+			StatusMsg:  "无法关注自己",
 		})
 		c.Abort()
 		return
