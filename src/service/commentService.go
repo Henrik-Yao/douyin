@@ -9,7 +9,7 @@ import (
 // GetCommentList 获取指定videoId的评论表
 func GetCommentList(videoId uint) ([]model.Comment, error) {
 	var commentList []model.Comment
-	if err := dao.SqlSession.Table("comments").Where("video_id=? and deleted_at is null", videoId).Find(&commentList).Error; err != nil {
+	if err := dao.SqlSession.Table("comments").Where("video_id=?", videoId).Find(&commentList).Error; err != nil {
 		return commentList, err
 	}
 	return commentList, nil
