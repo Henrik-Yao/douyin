@@ -79,23 +79,29 @@ func FollowAction(HostId uint, GuestId uint, actionType uint) error {
 
 		} else {
 			//关注不存在,创建关注
-			err := CreateFollowing(HostId, GuestId)
-			if err != nil {
-				return err
-			}
-			err = CreateFollower(GuestId, HostId)
-			if err != nil {
-				return err
-			}
-			//增加host_id的关注数
-			err = IncreaseFollowCount(HostId)
-			if err != nil {
-				return err
-			}
-			//增加guest_id的粉丝数
-			err = IncreaseFollowerCount(GuestId)
-			if err != nil {
-				return err
+			err1 := dao.SqlSession.Transaction(func(db *gorm.DB) error {
+				err := CreateFollowing(HostId, GuestId)
+				if err != nil {
+					return err
+				}
+				err = CreateFollower(GuestId, HostId)
+				if err != nil {
+					return err
+				}
+				//增加host_id的关注数
+				err = IncreaseFollowCount(HostId)
+				if err != nil {
+					return err
+				}
+				//增加guest_id的粉丝数
+				err = IncreaseFollowerCount(GuestId)
+				if err != nil {
+					return err
+				}
+				return nil
+			})
+			if err1 != nil {
+				return err1
 			}
 		}
 	}
@@ -103,24 +109,30 @@ func FollowAction(HostId uint, GuestId uint, actionType uint) error {
 		//判断关注是否存在
 		if IsFollowing(HostId, GuestId) {
 			//关注存在,删除关注
-			err := DeleteFollowing(HostId, GuestId)
-			if err != nil {
-				return err
+			if err1 := dao.SqlSession.Transaction(func(db *gorm.DB) error {
+				err := DeleteFollowing(HostId, GuestId)
+				if err != nil {
+					return err
+				}
+				err = DeleteFollower(GuestId, HostId)
+				if err != nil {
+					return err
+				}
+				//减少host_id的关注数
+				err = DecreaseFollowCount(HostId)
+				if err != nil {
+					return err
+				}
+				//减少guest_id的粉丝数
+				err = DecreaseFollowerCount(GuestId)
+				if err != nil {
+					return err
+				}
+				return nil
+			}); err1 != nil {
+				return err1
 			}
-			err = DeleteFollower(GuestId, HostId)
-			if err != nil {
-				return err
-			}
-			//减少host_id的关注数
-			err = DecreaseFollowCount(HostId)
-			if err != nil {
-				return err
-			}
-			//减少guest_id的粉丝数
-			err = DecreaseFollowerCount(GuestId)
-			if err != nil {
-				return err
-			}
+
 		} else {
 			//关注不存在
 		}
@@ -134,7 +146,8 @@ func FollowingList(HostId uint) ([]model.User, error) {
 	var userList []model.User
 	//2.查HostId的关注表
 	if err := dao.SqlSession.Model(&model.User{}).Joins("left join "+followings+" on "+users+".id = "+followings+".guest_id").
-		Where(followings+".host_id=? AND "+followings+".deleted_at is null", HostId).Scan(&userList).Error; err != nil {
+		Where(followings+".host_id=? AND "+followings+".deleted_at is null", HostId).
+		Scan(&userList).Error; err != nil {
 		return userList, nil
 	}
 	return userList, nil
