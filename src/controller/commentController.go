@@ -193,7 +193,7 @@ func CommentList(c *gin.Context) {
 			c.Abort()
 			return
 		}
-		responseCommentList[i] = CommentResponse{
+		responseComment := CommentResponse{
 			ID:         commentList[i].ID,
 			Content:    commentList[i].Content,
 			CreateDate: commentList[i].CreatedAt.Format("01-02"), // mm-dd
@@ -205,6 +205,8 @@ func CommentList(c *gin.Context) {
 				IsFollow:      service.IsFollowing(userId, commentList[i].ID),
 			},
 		}
+		responseCommentList = append(responseCommentList, responseComment)
+
 	}
 
 	//响应返回
