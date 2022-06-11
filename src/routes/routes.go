@@ -33,8 +33,8 @@ func InitRouter() *gin.Engine {
 
 		favoriteGroup := douyinGroup.Group("favorite")
 		{
-			favoriteGroup.POST("/action", middleware.JwtMiddleware(), controller.Favorite)
-			favoriteGroup.GET("/list", middleware.JwtMiddleware(), controller.FavoriteList)
+			favoriteGroup.POST("/action/", middleware.JwtMiddleware(), controller.Favorite)
+			favoriteGroup.GET("/list/", middleware.JwtMiddleware(), controller.FavoriteList)
 		}
 
 		// comment路由组
