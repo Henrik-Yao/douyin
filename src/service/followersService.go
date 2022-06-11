@@ -17,7 +17,9 @@ func IsFollower(HostId uint, GuestId uint) bool {
 	//1.数据模型准备
 	var relationExist = &model.Followers{}
 	//2.查询粉丝表中粉丝是否存在
-	if err := dao.SqlSession.Model(&model.Followers{}).Where("host_id=? AND guest_id=?", HostId, GuestId).First(&relationExist).Error; gorm.IsRecordNotFoundError(err) {
+	if err := dao.SqlSession.Model(&model.Followers{}).
+		Where("host_id=? AND guest_id=?", HostId, GuestId).
+		First(&relationExist).Error; gorm.IsRecordNotFoundError(err) {
 		//粉丝不存在
 		return false
 	}
@@ -27,7 +29,9 @@ func IsFollower(HostId uint, GuestId uint) bool {
 
 // IncreaseFollowerCount 增加HostId的粉丝数（Host_id 的 follow_count+1）
 func IncreaseFollowerCount(HostId uint) error {
-	if err := dao.SqlSession.Model(&model.User{}).Where("id=?", HostId).Update("follower_count", gorm.Expr("follower_count+?", 1)).Error; err != nil {
+	if err := dao.SqlSession.Model(&model.User{}).
+		Where("id=?", HostId).
+		Update("follower_count", gorm.Expr("follower_count+?", 1)).Error; err != nil {
 		return err
 	}
 	return nil
@@ -35,7 +39,9 @@ func IncreaseFollowerCount(HostId uint) error {
 
 // DecreaseFollowerCount 增加HostId的粉丝数（Host_id 的 follow_count-1）
 func DecreaseFollowerCount(HostId uint) error {
-	if err := dao.SqlSession.Model(&model.User{}).Where("id=?", HostId).Update("follower_count", gorm.Expr("follower_count-?", 1)).Error; err != nil {
+	if err := dao.SqlSession.Model(&model.User{}).
+		Where("id=?", HostId).
+		Update("follower_count", gorm.Expr("follower_count-?", 1)).Error; err != nil {
 		return err
 	}
 	return nil
@@ -51,7 +57,8 @@ func CreateFollower(HostId uint, GuestId uint) error {
 	}
 
 	//2.新建following
-	if err := dao.SqlSession.Model(&model.Followers{}).Create(&newFollower).Error; err != nil {
+	if err := dao.SqlSession.Model(&model.Followers{}).
+		Create(&newFollower).Error; err != nil {
 		return err
 	}
 	return nil
@@ -66,7 +73,9 @@ func DeleteFollower(HostId uint, GuestId uint) error {
 	}
 
 	//2.删除following
-	if err := dao.SqlSession.Model(&model.Followers{}).Where("host_id=? AND guest_id=?", HostId, GuestId).Delete(&newFollower).Error; err != nil {
+	if err := dao.SqlSession.Model(&model.Followers{}).
+		Where("host_id=? AND guest_id=?", HostId, GuestId).
+		Delete(&newFollower).Error; err != nil {
 		return err
 	}
 

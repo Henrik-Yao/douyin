@@ -11,4 +11,6 @@ var (
 	ErrorFullPossibility = errors.New("用户不存在，账号或密码出错")
 	ErrorNullPointer     = errors.New("空指针异常")
 	ErrorPasswordFalse   = errors.New("密码错误")
+	ErrorRelationExit    = errors.New("关注已存在")
+	ErrorRelationNull    = errors.New("关注不存在")
 )
