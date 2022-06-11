@@ -5,6 +5,7 @@ import (
 	"douyin/src/dao"
 	"douyin/src/model"
 	"douyin/src/service"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -182,6 +183,7 @@ func CommentList(c *gin.Context) {
 
 	//2.2 评论表存在
 	var responseCommentList []CommentResponse
+	fmt.Println(len(commentList))
 	for i := 0; i < len(commentList); i++ {
 		getUser, err1 := service.GetUser(commentList[i].UserId)
 
@@ -193,7 +195,7 @@ func CommentList(c *gin.Context) {
 			c.Abort()
 			return
 		}
-		responseCommentList[i] = CommentResponse{
+		responseComment := CommentResponse{
 			ID:         commentList[i].ID,
 			Content:    commentList[i].Content,
 			CreateDate: commentList[i].CreatedAt.Format("01-02"), // mm-dd
@@ -205,6 +207,8 @@ func CommentList(c *gin.Context) {
 				IsFollow:      service.IsFollowing(userId, commentList[i].ID),
 			},
 		}
+		responseCommentList = append(responseCommentList, responseComment)
+
 	}
 
 	//响应返回
