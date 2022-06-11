@@ -4,7 +4,6 @@ import (
 	"douyin/src/common"
 	"douyin/src/middleware"
 	"douyin/src/service"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -53,7 +52,6 @@ func Feed(c *gin.Context) {
 		lastTime = 0
 	}
 
-	fmt.Println(lastTime)
 	var feedVideoList []FeedVideo
 	feedVideoList = make([]FeedVideo, 0)
 	videoList, _ := service.FeedGet(lastTime)
