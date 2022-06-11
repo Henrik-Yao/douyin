@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"context"
 	"douyin/src/common"
 	"douyin/src/model"
 	"douyin/src/service"
@@ -9,12 +8,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	logging "github.com/sirupsen/logrus"
-	"github.com/tencentyun/cos-go-sdk-v5"
 	"net/http"
-	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 type ReturnAuthor struct {
@@ -39,33 +37,6 @@ type ReturnVideo struct {
 type VideoListResponse struct {
 	common.Response
 	VideoList []ReturnVideo `json:"video_list"`
-}
-
-const (
-	COS_BUCKET_NAME = "dong"
-	COS_APP_ID      = "1305843950"
-	COS_REGION      = "ap-nanjing"
-	COS_SECRET_ID   = "AKIDa0B5j6C1ZMvDG4brqZ1B5i5BzXprc6KH"
-	COS_SECRET_KEY  = "h7G9l6AxTigNozuYuzoMfjX4NREl1KNA"
-	COS_URL_FORMAT  = "http://%s-%s.cos.%s.myqcloud.com" // 此项固定
-)
-
-func CosUpload(fileName string, path string) (string, error) {
-	u, _ := url.Parse(fmt.Sprintf(COS_URL_FORMAT, COS_BUCKET_NAME, COS_APP_ID, COS_REGION))
-	b := &cos.BaseURL{BucketURL: u}
-	client := cos.NewClient(b, &http.Client{
-		Transport: &cos.AuthorizationTransport{
-			SecretID:  COS_SECRET_ID,
-			SecretKey: COS_SECRET_KEY,
-		},
-	})
-
-	//path为本地的保存路径
-	_, err := client.Object.PutFromFile(context.Background(), fileName, path, nil)
-	if err != nil {
-		panic(err)
-	}
-	return "https://dong-1305843950.cos.ap-nanjing.myqcloud.com/" + fileName, nil
 }
 
 func Publish(c *gin.Context) { //上传视频方法
@@ -99,7 +70,11 @@ func Publish(c *gin.Context) { //上传视频方法
 		return
 	}
 	//从本地上传到云端，并获取云端地址
-	playUrl, err := CosUpload(finalName, saveFile)
+	f, err := data.Open()
+	if err != nil {
+		err.Error()
+	}
+	playUrl, err := service.CosUpload(finalName, f)
 	if err != nil {
 		c.JSON(http.StatusOK, common.Response{
 			StatusCode: 1,
@@ -112,29 +87,26 @@ func Publish(c *gin.Context) { //上传视频方法
 		StatusMsg:  finalName + "--uploaded successfully",
 	})
 
-	var coverUrl string
-	coverUrl = "https://cdn.pixabay.com/photo/2016/03/27/18/10/bear-1283347_1280.jpg"
+	//直接传至云端，不用存储到本地
+	coverName := strings.Replace(finalName, ".mp4", ".jpeg", 1)
+	img := service.ExampleReadFrameAsJpeg(saveFile, 3) //获取第3帧封面
+	//img, _ := jpeg.Decode(buf)//保存到本地时要用到
+	//imgw, _ := os.Create(saveImage) //先创建，后写入
+	//jpeg.Encode(imgw, img, &jpeg.Options{100})
+	coverUrl, err := service.CosUpload(coverName, img)
+	if err != nil {
+		c.JSON(http.StatusOK, common.Response{
+			StatusCode: 1,
+			StatusMsg:  err.Error(),
+		})
+		return
+	}
 
-	////将封面上传到云端并返回url
-	//coverUrl, err := CosUpload(coverName, coverName)
-	//if err != nil {
-	//	c.JSON(http.StatusOK, common.Response{
-	//		StatusCode: 1,
-	//		StatusMsg:  err.Error(),
-	//	})
-	//	return
-	//}
-
-	//删除本地public中的视频
+	//删除保存在本地中的视频
 	err = os.Remove(saveFile)
 	if err != nil {
 		logging.Info(err)
 	}
-	//删除本地封面
-	//err = os.Remove(coverPath)
-	//if err != nil {
-	//	logging.Info(err)
-	//}
 
 	//4.保存发布信息至数据库,刚开始发布，喜爱和评论默认为0
 	video := model.Video{
