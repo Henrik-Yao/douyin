@@ -6,6 +6,7 @@ import (
 	"douyin/src/model"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
+	"strconv"
 )
 
 const (
@@ -127,4 +128,19 @@ func ComparePasswords(hashedPwd string, plainPwd string) bool {
 		return false
 	}
 	return true
+}
+
+// CheckIsFollow 检验已登录用户是否关注目标用户
+func CheckIsFollow(targetId string, userid uint) bool {
+	//1.修改targetId数据类型
+	hostId, err := strconv.ParseUint(targetId, 10, 64)
+	if err != nil {
+		return false
+	}
+	//如果是自己查自己，那就是没有关注
+	if uint(hostId) == userid {
+		return false
+	}
+	//2.自己是否关注目标userId
+	return IsFollowing(uint(hostId), userid)
 }

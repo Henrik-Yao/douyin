@@ -160,6 +160,12 @@ func UserInfo(c *gin.Context) {
 	rawId := c.Query("user_id")
 	userInfoResponse, err := UserInfoService(rawId)
 
+	//根据token获得当前用户的userid
+	token := c.Query("token")
+	tokenStruct, _ := middleware.CheckToken(token)
+	hostId := tokenStruct.UserId
+	userInfoResponse.IsFollow = service.CheckIsFollow(rawId, hostId)
+
 	//用户不存在返回对应的错误
 	if err != nil {
 		c.JSON(http.StatusOK, UserInfoResponse{
