@@ -78,8 +78,10 @@ func FollowerList(HostId uint) ([]model.User, error) {
 	//1.userList数据模型准备
 	var userList []model.User
 	//2.查HostId的关注表
-	if err := dao.SqlSession.Model(&model.User{}).Joins("left join "+followers+" on "+users+".id = "+followers+".guest_id").
-		Where(followers+".host_id=? AND "+followers+".deleted_at is null", HostId).Scan(&userList).Error; err != nil {
+	if err := dao.SqlSession.Model(&model.User{}).
+		Joins("left join "+followers+" on "+users+".id = "+followers+".guest_id").
+		Where(followers+".host_id=? AND "+followers+".deleted_at is null", HostId).
+		Scan(&userList).Error; err != nil {
 		return userList, nil
 	}
 	return userList, nil

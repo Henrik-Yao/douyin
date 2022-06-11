@@ -45,7 +45,17 @@ func RelationAction(c *gin.Context) {
 	getActionType, _ := strconv.ParseInt(c.Query("action_type"), 10, 64)
 	actionType := uint(getActionType)
 
-	//2.service层进行关注/取消关注处理
+	//2.自己关注/取消关注自己不合法
+	if hostId == guestId {
+		c.JSON(http.StatusOK, common.Response{
+			StatusCode: 405,
+			StatusMsg:  "你无法关注自己",
+		})
+		c.Abort()
+		return
+	}
+
+	//3.service层进行关注/取消关注处理
 	err := service.FollowAction(hostId, guestId, actionType)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, common.Response{
@@ -113,7 +123,7 @@ func FollowList(c *gin.Context) {
 	}
 }
 
-// FollowerList 获取用户关注列表
+// FollowerList 获取用户粉丝列表
 func FollowerList(c *gin.Context) {
 
 	//1.数据预处理

@@ -146,7 +146,8 @@ func FollowingList(HostId uint) ([]model.User, error) {
 	var userList []model.User
 	//2.查HostId的关注表
 	if err := dao.SqlSession.Model(&model.User{}).Joins("left join "+followings+" on "+users+".id = "+followings+".guest_id").
-		Where(followings+".host_id=? AND "+followings+".deleted_at is null", HostId).Scan(&userList).Error; err != nil {
+		Where(followings+".host_id=? AND "+followings+".deleted_at is null", HostId).
+		Scan(&userList).Error; err != nil {
 		return userList, nil
 	}
 	return userList, nil
