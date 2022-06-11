@@ -13,7 +13,7 @@ import (
 type FeedVideo struct {
 	Id            uint     `json:"id,omitempty"`
 	Author        FeedUser `json:"author,omitempty"`
-	PlayUrl       string   `json:"play_url" json:"play_url,omitempty"`
+	PlayUrl       string   `json:"play_url,omitempty"`
 	CoverUrl      string   `json:"cover_url,omitempty"`
 	FavoriteCount uint     `json:"favorite_count,omitempty"`
 	CommentCount  uint     `json:"comment_count,omitempty"`
