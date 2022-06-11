@@ -142,11 +142,13 @@ func UserLoginService(userName string, passWord string) (UserIdTokenResponse, er
 
 // UserInfoQueryResponse 用户信息返回的结构体
 type UserInfoQueryResponse struct {
-	UserId        uint   `json:"user_id"`
-	UserName      string `json:"name"`
-	FollowCount   uint   `json:"follow_count"`
-	FollowerCount uint   `json:"follower_count"`
-	IsFollow      bool   `json:"is_follow"`
+	UserId         uint   `json:"user_id"`
+	UserName       string `json:"name"`
+	FollowCount    uint   `json:"follow_count"`
+	FollowerCount  uint   `json:"follower_count"`
+	IsFollow       bool   `json:"is_follow"`
+	TotalFavorited uint   `json:"total_favorited"`
+	FavoriteCount  uint   `json:"favorite_count"`
 }
 
 type UserInfoResponse struct {
@@ -205,11 +207,13 @@ func UserInfoService(rawId string) (UserInfoQueryResponse, error) {
 	}
 
 	userInfoQueryResponse = UserInfoQueryResponse{
-		UserId:        user.Model.ID,
-		UserName:      user.Name,
-		FollowCount:   user.FollowCount,
-		FollowerCount: user.FollowerCount,
-		IsFollow:      false,
+		UserId:         user.Model.ID,
+		UserName:       user.Name,
+		FollowCount:    user.FollowCount,
+		FollowerCount:  user.FollowerCount,
+		TotalFavorited: user.TotalFavorited,
+		FavoriteCount:  user.FavoriteCount,
+		IsFollow:       false,
 	}
 	return userInfoQueryResponse, nil
 }
