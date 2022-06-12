@@ -1,3 +1,4 @@
 .idea
 videos
 src/dao/cos.go
+resources/application.yaml
