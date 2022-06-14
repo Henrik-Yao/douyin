@@ -16,8 +16,8 @@ func InitRouter() *gin.Engine {
 		userGroup := douyinGroup.Group("/user")
 		{
 			userGroup.GET("/", middleware.JwtMiddleware(), controller.UserInfo)
-			userGroup.POST("/login/", middleware.JwtMiddleware(), controller.UserLogin)
-			userGroup.POST("/register/", middleware.JwtMiddleware(), controller.UserRegister)
+			userGroup.POST("/login/", controller.UserLogin)
+			userGroup.POST("/register/", controller.UserRegister)
 		}
 
 		// publish路由组
@@ -33,8 +33,8 @@ func InitRouter() *gin.Engine {
 
 		favoriteGroup := douyinGroup.Group("favorite")
 		{
-			favoriteGroup.POST("/action", middleware.JwtMiddleware(), controller.Favorite)
-			favoriteGroup.GET("/list", middleware.JwtMiddleware(), controller.FavoriteList)
+			favoriteGroup.POST("/action/", middleware.JwtMiddleware(), controller.Favorite)
+			favoriteGroup.GET("/list/", middleware.JwtMiddleware(), controller.FavoriteList)
 		}
 
 		// comment路由组
