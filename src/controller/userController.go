@@ -142,11 +142,13 @@ func UserLoginService(userName string, passWord string) (UserIdTokenResponse, er
 
 // UserInfoQueryResponse 用户信息返回的结构体
 type UserInfoQueryResponse struct {
-	UserId        uint   `json:"user_id"`
-	UserName      string `json:"name"`
-	FollowCount   uint   `json:"follow_count"`
-	FollowerCount uint   `json:"follower_count"`
-	IsFollow      bool   `json:"is_follow"`
+	UserId         uint   `json:"user_id"`
+	UserName       string `json:"name"`
+	FollowCount    uint   `json:"follow_count"`
+	FollowerCount  uint   `json:"follower_count"`
+	IsFollow       bool   `json:"is_follow"`
+	TotalFavorited uint   `json:"total_favorited"`
+	FavoriteCount  uint   `json:"favorite_count"`
 }
 
 type UserInfoResponse struct {
@@ -159,6 +161,12 @@ func UserInfo(c *gin.Context) {
 	//根据user_id查询
 	rawId := c.Query("user_id")
 	userInfoResponse, err := UserInfoService(rawId)
+
+	//根据token获得当前用户的userid
+	token := c.Query("token")
+	tokenStruct, _ := middleware.CheckToken(token)
+	hostId := tokenStruct.UserId
+	userInfoResponse.IsFollow = service.CheckIsFollow(rawId, hostId)
 
 	//用户不存在返回对应的错误
 	if err != nil {
@@ -199,11 +207,13 @@ func UserInfoService(rawId string) (UserInfoQueryResponse, error) {
 	}
 
 	userInfoQueryResponse = UserInfoQueryResponse{
-		UserId:        user.Model.ID,
-		UserName:      user.Name,
-		FollowCount:   user.FollowCount,
-		FollowerCount: user.FollowerCount,
-		IsFollow:      false,
+		UserId:         user.Model.ID,
+		UserName:       user.Name,
+		FollowCount:    user.FollowCount,
+		FollowerCount:  user.FollowerCount,
+		TotalFavorited: user.TotalFavorited,
+		FavoriteCount:  user.FavoriteCount,
+		IsFollow:       false,
 	}
 	return userInfoQueryResponse, nil
 }

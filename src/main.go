@@ -24,7 +24,7 @@ func main() {
 	//注册路由
 	r := routes.InitRouter()
 	//启动端口为8080的项目
-	errRun := r.Run(":8080")
+	errRun := r.Run(":8000")
 	if errRun != nil {
 		return
 	}

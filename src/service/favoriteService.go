@@ -20,6 +20,46 @@ func CheckFavorite(uid uint, vid uint) bool {
 	return true
 }
 
+// AddTotalFavorited 增加total_favorited
+func AddTotalFavorited(HostId uint) error {
+	if err := dao.SqlSession.Model(&model.User{}).
+		Where("id=?", HostId).
+		Update("total_favorited", gorm.Expr("total_favorited+?", 1)).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+// ReduceTotalFavorited 减少total_favorited
+func ReduceTotalFavorited(HostId uint) error {
+	if err := dao.SqlSession.Model(&model.User{}).
+		Where("id=?", HostId).
+		Update("total_favorited", gorm.Expr("total_favorited-?", 1)).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+// AddFavoriteCount 增加favorite_count
+func AddFavoriteCount(HostId uint) error {
+	if err := dao.SqlSession.Model(&model.User{}).
+		Where("id=?", HostId).
+		Update("favorite_count", gorm.Expr("favorite_count+?", 1)).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+// ReduceFavoriteCount 减少favorite_count
+func ReduceFavoriteCount(HostId uint) error {
+	if err := dao.SqlSession.Model(&model.User{}).
+		Where("id=?", HostId).
+		Update("favorite_count", gorm.Expr("favorite_count-?", 1)).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 // FavoriteAction 点赞操作
 func FavoriteAction(userId uint, videoId uint, actionType uint) (err error) {
 
@@ -38,10 +78,34 @@ func FavoriteAction(userId uint, videoId uint, actionType uint) (err error) {
 				return err
 			}
 			dao.SqlSession.Table("videos").Where("id = ?", videoId).Update("favorite_count", gorm.Expr("favorite_count + 1"))
+			//userId的favorite_count增加
+			if err := AddFavoriteCount(userId); err != nil {
+				return err
+			}
+			//videoId对应的userId的total_favorite增加
+			GuestId, err := GetVideoAuthor(videoId)
+			if err != nil {
+				return err
+			}
+			if err := AddTotalFavorited(GuestId); err != nil {
+				return err
+			}
 		} else { //存在
 			if favoriteExist.State == 0 { //state为0-video的favorite_count加1
 				dao.SqlSession.Table("videos").Where("id = ?", videoId).Update("favorite_count", gorm.Expr("favorite_count + 1"))
 				dao.SqlSession.Table("favorites").Where("video_id = ?", videoId).Update("state", 1)
+				//userId的favorite_count增加
+				if err := AddFavoriteCount(userId); err != nil {
+					return err
+				}
+				//videoId对应的userId的total_favorite增加
+				GuestId, err := GetVideoAuthor(videoId)
+				if err != nil {
+					return err
+				}
+				if err := AddTotalFavorited(GuestId); err != nil {
+					return err
+				}
 			}
 			//state为1-video的favorite_count不变
 			return nil
@@ -56,6 +120,18 @@ func FavoriteAction(userId uint, videoId uint, actionType uint) (err error) {
 		}
 		if err := dao.SqlSession.Table("favorites").Where("user_id = ? AND video_id = ?", userId, videoId).First(&favoriteCancel).Error; err != nil { //找不到这条记录，取消点赞失败，创建记录
 			dao.SqlSession.Table("favorites").Create(&favoriteActionCancel)
+			//userId的favorite_count增加
+			if err := ReduceFavoriteCount(userId); err != nil {
+				return err
+			}
+			//videoId对应的userId的total_favorite增加
+			GuestId, err := GetVideoAuthor(videoId)
+			if err != nil {
+				return err
+			}
+			if err := ReduceTotalFavorited(GuestId); err != nil {
+				return err
+			}
 			return err
 		}
 		//存在
@@ -63,6 +139,18 @@ func FavoriteAction(userId uint, videoId uint, actionType uint) (err error) {
 			dao.SqlSession.Table("videos").Where("id = ?", videoId).Update("favorite_count", gorm.Expr("favorite_count - 1"))
 			//更新State
 			dao.SqlSession.Table("favorites").Where("video_id = ?", videoId).Update("state", 0)
+			if err := ReduceFavoriteCount(userId); err != nil {
+				return err
+			}
+			//videoId对应的userId的total_favorite增加
+			GuestId, err := GetVideoAuthor(videoId)
+			if err != nil {
+				return err
+			}
+			if err := ReduceTotalFavorited(GuestId); err != nil {
+				return err
+			}
+			return err
 		}
 		//state为0-video的favorite_count不变
 		return nil

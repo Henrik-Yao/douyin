@@ -72,7 +72,7 @@ func GetVideoList(userId uint) []model.Video {
 	return videoList
 }
 
-//上传至云端，返回url
+// CosUpload 上传至云端，返回url
 func CosUpload(fileName string, reader io.Reader) (string, error) {
 	u, _ := url.Parse(fmt.Sprintf(dao.COS_URL_FORMAT, dao.COS_BUCKET_NAME, dao.COS_APP_ID, dao.COS_REGION))
 	b := &cos.BaseURL{BucketURL: u}
@@ -90,7 +90,7 @@ func CosUpload(fileName string, reader io.Reader) (string, error) {
 	return "https://dong-1305843950.cos.ap-nanjing.myqcloud.com/" + fileName, nil
 }
 
-//获取封面
+// ExampleReadFrameAsJpeg 获取封面
 func ExampleReadFrameAsJpeg(inFileName string, frameNum int) io.Reader {
 	buf := bytes.NewBuffer(nil)
 	err := ffmpeg.Input(inFileName).

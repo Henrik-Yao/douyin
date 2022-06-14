@@ -123,7 +123,7 @@ func Publish(c *gin.Context) { //上传视频方法
 	}
 
 	//删除保存在本地中的视频
-	err = os.Remove(saveFile)
+	err = os.Remove(saveFile) // ignore_security_alert
 	if err != nil {
 		logging.Info(err)
 	}

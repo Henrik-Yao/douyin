@@ -4,7 +4,6 @@ import (
 	"douyin/src/common"
 	"douyin/src/middleware"
 	"douyin/src/service"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -14,7 +13,7 @@ import (
 type FeedVideo struct {
 	Id            uint     `json:"id,omitempty"`
 	Author        FeedUser `json:"author,omitempty"`
-	PlayUrl       string   `json:"play_url" json:"play_url,omitempty"`
+	PlayUrl       string   `json:"play_url,omitempty"`
 	CoverUrl      string   `json:"cover_url,omitempty"`
 	FavoriteCount uint     `json:"favorite_count,omitempty"`
 	CommentCount  uint     `json:"comment_count,omitempty"`
@@ -31,11 +30,13 @@ type FeedNoVideoResponse struct {
 	NextTime uint `json:"next_time"`
 }
 type FeedUser struct {
-	Id            uint   `json:"id,omitempty"`
-	Name          string `json:"name,omitempty"`
-	FollowCount   uint   `json:"follow_count,omitempty"`
-	FollowerCount uint   `json:"follower_count,omitempty"`
-	IsFollow      bool   `json:"is_follow,omitempty"`
+	Id             uint   `json:"id,omitempty"`
+	Name           string `json:"name,omitempty"`
+	FollowCount    uint   `json:"follow_count,omitempty"`
+	FollowerCount  uint   `json:"follower_count,omitempty"`
+	IsFollow       bool   `json:"is_follow,omitempty"`
+	TotalFavorited uint   `json:"total_favorited"`
+	FavoriteCount  uint   `json:"favorite_count"`
 }
 
 func Feed(c *gin.Context) {
@@ -53,7 +54,6 @@ func Feed(c *gin.Context) {
 		lastTime = 0
 	}
 
-	fmt.Println(lastTime)
 	var feedVideoList []FeedVideo
 	feedVideoList = make([]FeedVideo, 0)
 	videoList, _ := service.FeedGet(lastTime)
@@ -70,6 +70,9 @@ func Feed(c *gin.Context) {
 			feedUser.FollowerCount = user.FollowerCount
 			feedUser.FollowCount = user.FollowCount
 			feedUser.Name = user.Name
+			//add
+			feedUser.TotalFavorited = user.TotalFavorited
+			feedUser.FavoriteCount = user.FavoriteCount
 			feedUser.IsFollow = false
 			if haveToken {
 				// 查询是否关注

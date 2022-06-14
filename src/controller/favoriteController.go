@@ -73,9 +73,13 @@ func FavoriteList(c *gin.Context) {
 	}
 	userIdStr := c.Query("user_id") //自己id或别人id
 	userId, _ := strconv.ParseUint(userIdStr, 10, 10)
+	userIdNew := uint(userId)
+	if userIdNew == 0 {
+		userIdNew = userIdHost
+	}
 
 	//函数调用及响应
-	videoList, err := service.FavoriteList(uint(userId))
+	videoList, err := service.FavoriteList(userIdNew)
 	videoListNew := make([]FavoriteVideo, 0)
 	for _, m := range videoList {
 		var author = FavoriteAuthor{}
